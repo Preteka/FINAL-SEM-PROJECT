@@ -4,12 +4,19 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev:user": "cd frontend/user-app && npm run dev",
+    "dev:admin": "cd frontend/admin-panel && npm run dev",
+    "backend:user": "cd backend/user-service && npm run dev",
+    "backend:admin": "cd backend/admin-service && npm run dev",
+    "build:user": "cd frontend/user-app && npm run build",
+    "build:admin": "cd frontend/admin-panel && npm run build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "firebase": "^12.7.0",
     "lucide-react": "^0.562.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
