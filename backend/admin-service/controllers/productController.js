@@ -14,8 +14,16 @@ const writeData = (filename, data) => {
 
 export const getProducts = (req, res) => {
     try {
-        const products = readData('products.json');
-        res.json(products);
+        const productsData = readData('products.json');
+        // Flatten the object of category arrays into a single array
+        const allProducts = Object.keys(productsData).reduce((acc, category) => {
+            const itemsWithCategory = productsData[category].map(item => ({
+                ...item,
+                category // Add category back to product object
+            }));
+            return [...acc, ...itemsWithCategory];
+        }, []);
+        res.json(allProducts);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch products' });
     }
