@@ -8,7 +8,10 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+import chatRoutes from './routes/chatRoutes.js';
+
 app.use('/api/products', productRoutes);
+app.use('/api/chat', chatRoutes);
 
 app.listen(PORT, () => {
     console.log(`User Service running on port ${PORT}`);

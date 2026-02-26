@@ -30,7 +30,7 @@ const BrandStory = () => {
                     <div className="reveal-left">
                         <span className="section-badge" style={{ marginBottom: '16px', display: 'inline-block' }}>Our Legacy</span>
                         <h2 className="section-heading" style={{ textAlign: 'left', marginBottom: '24px' }}>
-                            Crafting Strength Since 1998
+                            Crafting Strength Since 2019
                         </h2>
                         <p className="section-desc" style={{ textAlign: 'left', maxWidth: '100%', marginBottom: '20px' }}>
                             At Vinayaga, we don't just manufacture plywood; we engineer trust. Our journey began with a simple vision: to provide the finest quality wood solutions that stand the test of time.
@@ -41,11 +41,11 @@ const BrandStory = () => {
 
                         <div style={{ display: 'flex', gap: '40px' }}>
                             <div>
-                                <h4 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--color-primary)', margin: 0 }}>25+</h4>
+                                <h4 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--color-primary)', margin: 0 }}>5+</h4>
                                 <p style={{ margin: 0, color: 'var(--color-text-light)' }}>Years of Excellence</p>
                             </div>
                             <div>
-                                <h4 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--color-primary)', margin: 0 }}>1M+</h4>
+                                <h4 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--color-primary)', margin: 0 }}>1k+</h4>
                                 <p style={{ margin: 0, color: 'var(--color-text-light)' }}>Happy Homes</p>
                             </div>
                         </div>

@@ -30,9 +30,67 @@ const LoginRegister = () => {
         setError('');
     };
 
+    const validateForm = () => {
+        // Email Validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            setError("Please enter a valid email address");
+            return false;
+        }
+
+        // Password Validation
+        if (formData.password.length < 8) {
+            setError("Password must be at least 8 characters long");
+            return false;
+        }
+
+        // Complexity Validation (Register Only)
+        if (!isLogin) {
+            if (!/[A-Z]/.test(formData.password)) {
+                setError("Password must contain at least one uppercase letter");
+                return false;
+            }
+            if (!/[a-z]/.test(formData.password)) {
+                setError("Password must contain at least one lowercase letter");
+                return false;
+            }
+            if (!/[0-9]/.test(formData.password)) {
+                setError("Password must contain at least one number");
+                return false;
+            }
+            if (!/[!@#$%^&*]/.test(formData.password)) {
+                setError("Password must contain at least one special character (!@#$%^&*)");
+                return false;
+            }
+        }
+
+        // Name Validation (Register Only)
+        if (!isLogin) {
+            if (formData.name.trim().length < 2) {
+                setError("Name must be at least 2 characters long");
+                return false;
+            }
+            if (!/^[a-zA-Z\s]*$/.test(formData.name)) {
+                setError("Name can only contain letters and spaces");
+                return false;
+            }
+            if (formData.password !== formData.confirmPassword) {
+                setError("Passwords do not match");
+                return false;
+            }
+        }
+
+        return true;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        if (!validateForm()) {
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -40,9 +98,6 @@ const LoginRegister = () => {
                 await login(formData.email, formData.password);
                 navigate(from, { replace: true });
             } else {
-                if (formData.password !== formData.confirmPassword) {
-                    throw new Error("Passwords do not match");
-                }
                 await register(formData.email, formData.password, formData.name);
                 navigate(from, { replace: true });
             }

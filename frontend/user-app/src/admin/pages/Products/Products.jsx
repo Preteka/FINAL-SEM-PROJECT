@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import AdminHeader from '../../components/Header/Header';
 import { useProducts } from '../../hooks/useProducts';
 import { useAuth } from '../../../shared/context/AuthContext';
@@ -10,6 +11,7 @@ const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dyt
 
 const AdminProducts = () => {
     const { user } = useAuth();
+    const location = useLocation();
     const { products, loading, fetchProducts, error: fetchError } = useProducts();
     const [searchTerm, setSearchTerm] = useState('');
     const [showAddModal, setShowAddModal] = useState(false);
@@ -40,12 +42,20 @@ const AdminProducts = () => {
 
     useEffect(() => {
         const unsubscribe = fetchProducts();
+
+        // Handle auto-opening of Add Modal from Quick Actions
+        if (location.state?.openAddModal) {
+            openAddModal();
+            // Clear location state to prevent modal from re-opening on manual refresh
+            window.history.replaceState({}, document.title);
+        }
+
         return () => {
             if (unsubscribe && typeof unsubscribe === 'function') {
                 unsubscribe();
             }
         };
-    }, [fetchProducts]);
+    }, [fetchProducts, location.state]);
 
     const handleAddProduct = async (e) => {
         e.preventDefault();
@@ -253,30 +263,72 @@ const AdminProducts = () => {
         <>
             <AdminHeader title="Product Management" />
             <div className="admin-content">
-                <div className="admin-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.25rem' }}>
+                {/* Enhanced Page Header */}
+                <div
+                    className="admin-section-header"
+                    style={{
+                        background: 'linear-gradient(135deg, #8d6e63 0%, #5d4037 100%)',
+                        padding: '2rem',
+                        borderRadius: '12px',
+                        color: 'white',
+                        marginBottom: '2rem',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '1.5rem',
+                        animation: 'slideInDown 0.6s ease-out',
+                        boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+                    }}
+                >
                     <div>
-                        <h2>Catalog</h2>
-                        <p>Showing {filteredProducts.length} items</p>
+                        <h2 style={{ color: 'white', marginBottom: '0.4rem', fontSize: '1.75rem' }}>Product Catalog</h2>
+                        <p style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>
+                            <i className="fas fa-boxes me-2"></i> Managing {filteredProducts.length} premium wood products
+                        </p>
                     </div>
                     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                         <div style={{ position: 'relative' }}>
-                            <i className="fas fa-search" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }}></i>
+                            <i className="fas fa-search" style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: '#8d6e63' }}></i>
                             <input
                                 type="text"
                                 placeholder="Search products..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 style={{
-                                    padding: '0.65rem 1rem 0.65rem 2.5rem',
-                                    border: '1px solid #e2e8f0',
-                                    borderRadius: '8px',
-                                    minWidth: '250px',
-                                    outline: 'none'
+                                    padding: '0.75rem 1rem 0.75rem 2.8rem',
+                                    border: 'none',
+                                    borderRadius: '10px',
+                                    minWidth: '280px',
+                                    outline: 'none',
+                                    boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+                                    fontSize: '0.95rem'
                                 }}
                             />
                         </div>
-                        <button className="admin-btn-primary" onClick={openAddModal}>
-                            <i className="fas fa-plus"></i> Add Product
+                        <button
+                            className="admin-btn-primary"
+                            onClick={openAddModal}
+                            style={{
+                                background: 'white',
+                                color: '#5d4037',
+                                border: 'none',
+                                padding: '0.75rem 1.5rem',
+                                fontWeight: '600',
+                                borderRadius: '10px',
+                                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                                transition: 'all 0.3s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.15)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+                            }}
+                        >
+                            <i className="fas fa-plus-circle me-1"></i> New Product
                         </button>
                     </div>
                 </div>
@@ -296,28 +348,49 @@ const AdminProducts = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredProducts.map((product) => (
-                                    <tr key={product.id}>
+                                {filteredProducts.map((product, index) => (
+                                    <tr
+                                        key={product.id}
+                                        style={{
+                                            animation: `fadeInUp 0.5s ease-out ${index * 0.05}s both`
+                                        }}
+                                    >
                                         <td>
-                                            <img
-                                                src={product.image}
-                                                alt={product.name}
-                                                style={{ width: '45px', height: '45px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #f1f5f9' }}
-                                            />
+                                            <div style={{ position: 'relative', width: '45px', height: '45px' }}>
+                                                <img
+                                                    src={product.image}
+                                                    alt={product.name}
+                                                    style={{ width: '45px', height: '45px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #f1f5f9' }}
+                                                />
+                                            </div>
                                         </td>
                                         <td style={{ fontWeight: '600', color: '#1e293b' }}>{product.name}</td>
-                                        <td><span className="category-badge">{product.category}</span></td>
+                                        <td>
+                                            <span
+                                                className="category-badge"
+                                                style={{
+                                                    background: '#efebe9',
+                                                    color: '#5d4037',
+                                                    padding: '4px 8px',
+                                                    borderRadius: '6px',
+                                                    fontSize: '0.8rem',
+                                                    fontWeight: '600'
+                                                }}
+                                            >
+                                                {product.category}
+                                            </span>
+                                        </td>
                                         <td>{product.brand}</td>
-                                        <td style={{ fontWeight: '500' }}>{product.price}</td>
+                                        <td style={{ fontWeight: '600', color: '#5d4037' }}>{product.price}</td>
                                         <td>
                                             <span className={`status-badge ${Number(product.stockCount) > 0 ? 'status-delivered' : 'status-cancelled'}`}>
                                                 {Number(product.stockCount) > 0 ? 'In Stock' : 'Out of Stock'}
                                             </span>
                                         </td>
                                         <td>
-                                            <div style={{ display: 'flex', gap: '0.6rem' }}>
-                                                <button className="action-btn" title="View" onClick={() => handleViewProduct(product)}><i className="fas fa-eye"></i></button>
-                                                <button className="action-btn" title="Edit" onClick={() => handleEditClick(product)}><i className="fas fa-edit"></i></button>
+                                            <div style={{ display: 'flex', gap: '0.8rem' }}>
+                                                <button className="action-btn" title="View" onClick={() => handleViewProduct(product)} style={{ color: '#8d6e63' }}><i className="fas fa-eye"></i></button>
+                                                <button className="action-btn" title="Edit" onClick={() => handleEditClick(product)} style={{ color: '#5d4037' }}><i className="fas fa-edit"></i></button>
                                                 <button className="action-btn delete" title="Delete" onClick={() => handleDeleteProduct(product.id)}><i className="fas fa-trash"></i></button>
                                             </div>
                                         </td>
@@ -522,6 +595,41 @@ const AdminProducts = () => {
                     </div>
                 </div>
             )}
+            <style>{`
+                @keyframes slideInDown {
+                    from { opacity: 0; transform: translateY(-30px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                @keyframes scaleIn {
+                    from { opacity: 0; transform: scale(0.9); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+
+                .admin-modal {
+                    animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                }
+
+                .admin-table tr {
+                    transition: all 0.2s ease;
+                }
+
+                .admin-table tr:hover {
+                    background-color: #fdfaf9 !important;
+                    transform: scale(1.002);
+                    box-shadow: inset 0 0 10px rgba(141, 110, 99, 0.05);
+                }
+
+                .action-btn:hover {
+                    transform: scale(1.2);
+                    transition: transform 0.2s ease;
+                }
+            `}</style>
         </>
     );
 };
