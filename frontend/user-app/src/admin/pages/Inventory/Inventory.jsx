@@ -91,6 +91,64 @@ const AdminInventory = () => {
         <>
             <AdminHeader title="Inventory Management" />
             <div className="admin-content">
+                {/* Enhanced Page Header */}
+                <div
+                    className="admin-section-header"
+                    style={{
+                        background: 'linear-gradient(135deg, #8d6e63 0%, #5d4037 100%)',
+                        padding: '2rem',
+                        borderRadius: '12px',
+                        color: 'white',
+                        marginBottom: '2rem',
+                        animation: 'slideInDown 0.6s ease-out',
+                        boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+                    }}
+                >
+                    <div>
+                        <h2 style={{ color: 'white', marginBottom: '0.4rem', fontSize: '1.75rem' }}>Inventory Tracking</h2>
+                        <p style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>
+                            <i className="fas fa-warehouse me-2"></i> Real-time stock management and alerts
+                        </p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                        <select
+                            value={filterStatus}
+                            onChange={(e) => setFilterStatus(e.target.value)}
+                            style={{
+                                padding: '0.75rem',
+                                borderRadius: '10px',
+                                border: 'none',
+                                outline: 'none',
+                                background: 'white',
+                                color: '#5d4037',
+                                fontWeight: '600',
+                                boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
+                            }}
+                        >
+                            <option value="all">All Status</option>
+                            <option value="low">Low Stock</option>
+                            <option value="out">Out of Stock</option>
+                        </select>
+                        <div style={{ position: 'relative' }}>
+                            <i className="fas fa-search" style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: '#8d6e63' }}></i>
+                            <input
+                                type="text"
+                                placeholder="Search inventory..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                style={{
+                                    padding: '0.75rem 1rem 0.75rem 2.8rem',
+                                    border: 'none',
+                                    borderRadius: '10px',
+                                    minWidth: '250px',
+                                    outline: 'none',
+                                    boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
+
                 {/* Stats Grid */}
                 <div className="stats-grid" style={{
                     display: 'grid',
@@ -98,74 +156,48 @@ const AdminInventory = () => {
                     gap: '1.5rem',
                     marginBottom: '2rem'
                 }}>
-                    <div className="stat-card">
-                        <div className="stat-icon" style={{ background: '#e0f2fe', color: '#0284c7' }}>
-                            <i className="fas fa-cubes"></i>
-                        </div>
-                        <div className="stat-info">
-                            <h3>Total Products</h3>
-                            <p>{stats.totalProducts}</p>
-                        </div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-icon" style={{ background: '#fff7ed', color: '#ea580c' }}>
-                            <i className="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div className="stat-info">
-                            <h3>Low Stock</h3>
-                            <p>{stats.lowStock}</p>
-                        </div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-icon" style={{ background: '#fef2f2', color: '#dc2626' }}>
-                            <i className="fas fa-times-circle"></i>
-                        </div>
-                        <div className="stat-info">
-                            <h3>Out of Stock</h3>
-                            <p>{stats.outOfStock}</p>
-                        </div>
-                    </div>
-                    <div className="stat-card">
-                        <div className="stat-icon" style={{ background: '#f0fdf4', color: '#16a34a' }}>
-                            <i className="fas fa-layer-group"></i>
-                        </div>
-                        <div className="stat-info">
-                            <h3>Total Units</h3>
-                            <p>{stats.totalStock}</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Controls */}
-                <div className="admin-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-                    <h2>Stock List</h2>
-                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                        <select
-                            value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value)}
-                            style={{ padding: '0.65rem', borderRadius: '8px', border: '1px solid #e2e8f0', outline: 'none' }}
+                    {[
+                        { title: 'Total Products', value: stats.totalProducts, icon: 'fa-cubes', bg: '#efebe9', color: '#8d6e63', delay: '0s' },
+                        { title: 'Low Stock', value: stats.lowStock, icon: 'fa-exclamation-triangle', bg: '#fff7ed', color: '#ea580c', delay: '0.1s' },
+                        { title: 'Out of Stock', value: stats.outOfStock, icon: 'fa-times-circle', bg: '#fef2f2', color: '#dc2626', delay: '0.2s' },
+                        { title: 'Total Units', value: stats.totalStock, icon: 'fa-layer-group', bg: '#f0fdf4', color: '#16a34a', delay: '0.3s' }
+                    ].map((stat, i) => (
+                        <div
+                            key={i}
+                            className="stat-card"
+                            style={{
+                                animation: `fadeInUp 0.5s ease-out ${stat.delay} both`,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '1.25rem',
+                                padding: '1.5rem',
+                                background: 'white',
+                                borderRadius: '12px',
+                                boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+                                transition: 'transform 0.3s ease'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                         >
-                            <option value="all">All Status</option>
-                            <option value="low">Low Stock</option>
-                            <option value="out">Out of Stock</option>
-                        </select>
-                        <div style={{ position: 'relative' }}>
-                            <i className="fas fa-search" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }}></i>
-                            <input
-                                type="text"
-                                placeholder="Search inventory..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                style={{
-                                    padding: '0.65rem 1rem 0.65rem 2.5rem',
-                                    border: '1px solid #e2e8f0',
-                                    borderRadius: '8px',
-                                    minWidth: '250px',
-                                    outline: 'none'
-                                }}
-                            />
+                            <div className="stat-icon" style={{
+                                width: '50px',
+                                height: '50px',
+                                borderRadius: '10px',
+                                background: stat.bg,
+                                color: stat.color,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '1.25rem'
+                            }}>
+                                <i className={`fas ${stat.icon}`}></i>
+                            </div>
+                            <div className="stat-info">
+                                <h3 style={{ margin: 0, fontSize: '0.9rem', color: '#64748b' }}>{stat.title}</h3>
+                                <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>{stat.value}</p>
+                            </div>
                         </div>
-                    </div>
+                    ))}
                 </div>
 
                 {/* Table */}
@@ -183,19 +215,39 @@ const AdminInventory = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredProducts.map((product) => (
-                                    <tr key={product.id} style={{ background: Number(product.stockCount) === 0 ? '#fff1f2' : 'white' }}>
+                                {filteredProducts.map((product, index) => (
+                                    <tr
+                                        key={product.id}
+                                        style={{
+                                            background: Number(product.stockCount) === 0 ? '#fff5f5' : 'white',
+                                            animation: `fadeInUp 0.5s ease-out ${index * 0.05}s both`
+                                        }}
+                                    >
                                         <td>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                                 <img
                                                     src={product.image}
                                                     alt={product.name}
-                                                    style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover', border: '1px solid #eee' }}
+                                                    style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', border: '1px solid #f1f5f9' }}
                                                 />
-                                                <span style={{ fontWeight: '600', color: '#334155' }}>{product.name}</span>
+                                                <span style={{ fontWeight: '600', color: '#5d4037' }}>{product.name}</span>
                                             </div>
                                         </td>
-                                        <td><span className="category-badge">{product.category}</span></td>
+                                        <td>
+                                            <span
+                                                className="category-badge"
+                                                style={{
+                                                    background: '#efebe9',
+                                                    color: '#5d4037',
+                                                    padding: '4px 8px',
+                                                    borderRadius: '6px',
+                                                    fontSize: '0.8rem',
+                                                    fontWeight: '600'
+                                                }}
+                                            >
+                                                {product.category}
+                                            </span>
+                                        </td>
                                         <td>{product.price}</td>
                                         <td>
                                             {editingId === product.id ? (
@@ -203,11 +255,26 @@ const AdminInventory = () => {
                                                     type="number"
                                                     value={editStockValue}
                                                     onChange={(e) => setEditStockValue(e.target.value)}
-                                                    style={{ width: '80px', padding: '0.4rem', borderRadius: '4px', border: '1px solid #3b82f6' }}
+                                                    style={{
+                                                        width: '80px',
+                                                        padding: '0.4rem',
+                                                        borderRadius: '6px',
+                                                        border: '2px solid #8d6e63',
+                                                        outline: 'none'
+                                                    }}
                                                     autoFocus
                                                 />
                                             ) : (
-                                                <span style={{ fontWeight: 'bold' }}>{product.stockCount}</span>
+                                                <span
+                                                    style={{
+                                                        fontWeight: 'bold',
+                                                        color: Number(product.stockCount) < 10 ? '#ea580c' : '#1e293b',
+                                                        animation: Number(product.stockCount) < 5 ? 'pulse 2s infinite' : 'none',
+                                                        display: 'inline-block'
+                                                    }}
+                                                >
+                                                    {product.stockCount}
+                                                </span>
                                             )}
                                         </td>
                                         <td>{getStatusBadge(Number(product.stockCount))}</td>
@@ -216,7 +283,7 @@ const AdminInventory = () => {
                                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                                                     <button
                                                         className="action-btn"
-                                                        style={{ color: '#16a34a', background: '#dcfce7' }}
+                                                        style={{ color: '#16a34a', background: '#dcfce7', border: 'none', borderRadius: '6px', padding: '6px 10px' }}
                                                         onClick={() => saveStock(product.id)}
                                                         disabled={updating}
                                                     >
@@ -224,7 +291,7 @@ const AdminInventory = () => {
                                                     </button>
                                                     <button
                                                         className="action-btn"
-                                                        style={{ color: '#dc2626', background: '#fee2e2' }}
+                                                        style={{ color: '#dc2626', background: '#fee2e2', border: 'none', borderRadius: '6px', padding: '6px 10px' }}
                                                         onClick={cancelEdit}
                                                         disabled={updating}
                                                     >
@@ -236,6 +303,7 @@ const AdminInventory = () => {
                                                     className="action-btn"
                                                     onClick={() => startEdit(product)}
                                                     title="Update Stock"
+                                                    style={{ color: '#8d6e63', background: '#efebe9', border: 'none', borderRadius: '6px', padding: '6px 10px' }}
                                                 >
                                                     <i className="fas fa-pen"></i>
                                                 </button>
@@ -255,6 +323,41 @@ const AdminInventory = () => {
                     </div>
                 </div>
             </div>
+            <style>{`
+                @keyframes slideInDown {
+                    from { opacity: 0; transform: translateY(-30px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                @keyframes pulse {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.1); color: #dc2626; }
+                    100% { transform: scale(1); }
+                }
+
+                .admin-table tr {
+                    transition: all 0.2s ease;
+                }
+
+                .admin-table tr:hover {
+                    background-color: #fdfaf9 !important;
+                    transform: scale(1.002);
+                }
+
+                .action-btn {
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                }
+
+                .action-btn:hover {
+                    transform: scale(1.1);
+                }
+            `}</style>
         </>
     );
 };

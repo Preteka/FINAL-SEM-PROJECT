@@ -1,144 +1,79 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import AdminHeader from '../../components/Header/Header';
-import StatCard from '../../components/Cards/StatCard';
-import MockChart from '../../components/Charts/MockChart';
-import { API_BASE_URL } from '../../config';
+import DashboardStats from '../../components/Cards/DashboardStats';
+import RecentOrders from '../../components/Tables/RecentOrders';
+import LowStockAlert from '../../components/Tables/LowStockAlert';
+import AnimatedChart from '../../components/Charts/AnimatedChart';
+import { useDashboardData } from '../../hooks/useDashboardData';
 
 const AdminDashboard = () => {
-    const [stats, setStats] = useState([]);
-    const [latestOrders, setLatestOrders] = useState([]);
-    const [lowStock, setLowStock] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [statsRes, ordersRes, stockRes] = await Promise.all([
-                    fetch(`${API_BASE_URL}/admin/stats`),
-                    fetch(`${API_BASE_URL}/admin/latest-orders`),
-                    fetch(`${API_BASE_URL}/admin/low-stock`)
-                ]);
-
-                const statsData = await statsRes.json();
-                const ordersData = await ordersRes.json();
-                const stockData = await stockRes.json();
-
-                setStats(statsData);
-                setLatestOrders(ordersData);
-                setLowStock(stockData);
-            } catch (error) {
-                console.error('Error fetching dashboard data:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
+    const { stats, recentOrders, lowStockItems, loading } = useDashboardData();
 
     if (loading) {
-        return <div className="admin-content">Loading dashboard...</div>;
+        return (
+            <>
+                <AdminHeader title="Business Dashboard" />
+                <div className="admin-content">
+                    <div style={{
+                        textAlign: 'center',
+                        padding: '4rem',
+                        color: '#64748b',
+                        animation: 'fadeIn 0.5s ease-out'
+                    }}>
+                        <i className="fas fa-spinner fa-spin" style={{ fontSize: '3rem', marginBottom: '1rem' }}></i>
+                        <p>Loading dashboard data...</p>
+                    </div>
+                </div>
+            </>
+        );
     }
 
     return (
         <>
             <AdminHeader title="Business Dashboard" />
             <div className="admin-content">
-                <div className="admin-grid">
-                    {stats.map((stat, index) => (
-                        <StatCard key={index} title={stat.title} value={stat.value} />
-                    ))}
-                </div>
+                {/* Stats Cards */}
+                <DashboardStats stats={stats} />
 
-                <div className="dashboard-row">
-                    <div className="dashboard-col" style={{ flex: '2' }}>
-                        <div className="admin-table-container" style={{ margin: 0 }}>
-                            <div className="admin-table-title">Latest Orders</div>
-                            <div className="admin-table-wrapper">
-                                <table className="admin-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Order ID</th>
-                                            <th>Customer</th>
-                                            <th>Product</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {latestOrders.length > 0 ? (
-                                            latestOrders.map(order => (
-                                                <tr key={order.id}>
-                                                    <td>{order.id}</td>
-                                                    <td>{order.customer}</td>
-                                                    <td>{order.product}</td>
-                                                    <td>
-                                                        <span className={`status-badge status-${order.status.toLowerCase()}`}>
-                                                            {order.status}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan="4" style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
-                                                    No recent orders found.
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                {/* Charts and Orders Row */}
+                <div className="dashboard-row" style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+                    <div className="dashboard-col" style={{ flex: '2', minWidth: '300px' }}>
+                        <RecentOrders orders={recentOrders} />
                     </div>
-                    <div className="dashboard-col">
-                        <MockChart title="Category Distribution" type="Pie" />
+                    <div className="dashboard-col" style={{ flex: '1', minWidth: '300px' }}>
+                        <AnimatedChart title="Category Distribution" type="Pie" />
                     </div>
                 </div>
 
-                <div className="dashboard-row">
-                    <div className="dashboard-col">
-                        <MockChart title="Monthly Sales" type="Bar" />
+                {/* Monthly Sales and Low Stock Row */}
+                <div className="dashboard-row" style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+                    <div className="dashboard-col" style={{ flex: '1', minWidth: '300px' }}>
+                        <AnimatedChart title="Monthly Products Added" type="Bar" />
                     </div>
-                    <div className="dashboard-col">
-                        <div className="admin-table-container" style={{ margin: 0 }}>
-                            <div className="admin-table-title">Low Stock Alerts</div>
-                            <div className="admin-table-wrapper">
-                                <table className="admin-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Product</th>
-                                            <th>Stock</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {lowStock.length > 0 ? (
-                                            lowStock.map((product, index) => (
-                                                <tr key={index}>
-                                                    <td>{product.name}</td>
-                                                    <td>
-                                                        <span className="status-badge status-low">
-                                                            {product.remaining} units
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan="2" style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
-                                                    All products are in stock.
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                    <div className="dashboard-col" style={{ flex: '1', minWidth: '300px' }}>
+                        <LowStockAlert items={lowStockItems} />
                     </div>
                 </div>
             </div>
+
+            <style>{`
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+
+                .dashboard-row {
+                    margin-bottom: 1.5rem;
+                }
+
+                @media (max-width: 768px) {
+                    .dashboard-row {
+                        flex-direction: column;
+                    }
+                }
+            `}</style>
         </>
     );
 };
 
 export default AdminDashboard;
-

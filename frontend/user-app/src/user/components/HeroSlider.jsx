@@ -22,14 +22,14 @@ const HeroSlider = () => {
             src: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1600&q=80', // Modern interior
             title: "Innovative Designs",
             subtitle: "Transforming Spaces with Quality",
-            cta: "View Projects"
+            cta: "Explore Collections"
         },
         {
             type: 'image',
             src: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1600&q=80', // Kitchen
             title: "Durable & Stylish",
             subtitle: "The Perfect Choice for Kitchens",
-            cta: "Get Quote"
+            cta: "Explore Collections"
         }
     ];
 

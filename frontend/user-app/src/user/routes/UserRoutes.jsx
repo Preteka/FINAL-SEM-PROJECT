@@ -10,6 +10,7 @@ import Checkout from '../pages/Checkout/Checkout';
 import Orders from '../pages/Orders/Orders';
 import Settings from '../pages/Settings/Settings';
 import CostEstimation from '../pages/Home/CostEstimation';
+import ColorPalette from '../pages/Home/ColorPalette';
 
 const UserRoutes = () => {
     return (
@@ -19,6 +20,7 @@ const UserRoutes = () => {
             <Route path="/products/:filterType/:filterValue" element={<Products />} />
             <Route path="/product/:productId" element={<ProductDetails />} />
             <Route path="/cost-estimation" element={<CostEstimation />} />
+            <Route path="/color-palette" element={<ColorPalette />} />
             <Route path="/login" element={<LoginRegister />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/cart" element={<Cart />} />

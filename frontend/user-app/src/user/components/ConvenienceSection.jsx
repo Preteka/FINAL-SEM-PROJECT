@@ -58,7 +58,7 @@ const ConvenienceSection = () => {
             id: 2,
             title: 'Color Palette',
             image: 'https://images.unsplash.com/photo-1615529182904-14819c35db37?auto=format&fit=crop&w=600&q=80',
-            link: '/products',
+            link: '/color-palette',
             number: '02'
         }
     ];

@@ -45,24 +45,45 @@ const Customers = () => {
         <>
             <AdminHeader title="User Management" />
             <div className="admin-content">
-                <div className="admin-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                {/* Enhanced Page Header */}
+                <div
+                    className="admin-section-header"
+                    style={{
+                        background: 'linear-gradient(135deg, #8d6e63 0%, #5d4037 100%)',
+                        padding: '2rem',
+                        borderRadius: '12px',
+                        color: 'white',
+                        marginBottom: '2rem',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '1.5rem',
+                        animation: 'slideInDown 0.6s ease-out',
+                        boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+                    }}
+                >
                     <div>
-                        <h2>Users</h2>
-                        <p>Manage registered customers.</p>
+                        <h2 style={{ color: 'white', marginBottom: '0.4rem', fontSize: '1.75rem' }}>Users & Customers</h2>
+                        <p style={{ color: 'rgba(255,255,255,0.9)', margin: 0 }}>
+                            <i className="fas fa-users-cog me-2"></i> Manage registered community members
+                        </p>
                     </div>
                     <div style={{ position: 'relative' }}>
-                        <i className="fas fa-search" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }}></i>
+                        <i className="fas fa-search" style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: '#8d6e63' }}></i>
                         <input
                             type="text"
                             placeholder="Search users..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             style={{
-                                padding: '0.65rem 1rem 0.65rem 2.5rem',
-                                border: '1px solid #e2e8f0',
-                                borderRadius: '8px',
-                                minWidth: '250px',
-                                outline: 'none'
+                                padding: '0.75rem 1rem 0.75rem 2.8rem',
+                                border: 'none',
+                                borderRadius: '10px',
+                                minWidth: '300px',
+                                outline: 'none',
+                                boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+                                fontSize: '0.95rem'
                             }}
                         />
                     </div>
@@ -81,34 +102,56 @@ const Customers = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredUsers.map((user) => (
-                                    <tr key={user.id}>
+                                {filteredUsers.map((user, index) => (
+                                    <tr
+                                        key={user.id}
+                                        style={{
+                                            animation: `fadeInUp 0.5s ease-out ${index * 0.05}s both`
+                                        }}
+                                    >
                                         <td>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                                                 <div style={{
-                                                    width: '32px', height: '32px', borderRadius: '50%',
-                                                    background: '#e2e8f0', color: '#64748b',
+                                                    width: '36px', height: '36px', borderRadius: '50%',
+                                                    background: '#efebe9', color: '#8d6e63',
                                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                    fontSize: '0.8rem', fontWeight: 'bold'
+                                                    fontSize: '0.9rem', fontWeight: 'bold',
+                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                                                    border: '1px solid #d7ccc8'
                                                 }}>
                                                     {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                                                 </div>
-                                                <span style={{ fontWeight: '500', color: '#1e293b' }}>{user.name || 'N/A'}</span>
+                                                <span style={{ fontWeight: '600', color: '#1e293b' }}>{user.name || 'N/A'}</span>
                                             </div>
                                         </td>
                                         <td>{user.email || 'N/A'}</td>
                                         <td>
-                                            <span className={`status-badge ${user.role === 'admin' ? 'status-low' : 'status-delivered'}`}>
+                                            <span
+                                                className={`status-badge ${user.role === 'admin' ? 'status-delivered' : 'status-pending'}`}
+                                                style={{
+                                                    background: user.role === 'admin' ? '#8d6e63' : '#efebe9',
+                                                    color: user.role === 'admin' ? 'white' : '#5d4037'
+                                                }}
+                                            >
                                                 {user.role || 'User'}
                                             </span>
                                         </td>
                                         <td>{user.phone || 'N/A'}</td>
                                         <td>
-                                            <div style={{ display: 'flex', gap: '0.6rem' }}>
-                                                <button className="action-btn" title="View Details" onClick={() => handleViewDetails(user)}>
+                                            <div style={{ display: 'flex', gap: '0.8rem' }}>
+                                                <button
+                                                    className="action-btn"
+                                                    title="View Details"
+                                                    onClick={() => handleViewDetails(user)}
+                                                    style={{ color: '#8d6e63' }}
+                                                >
                                                     <i className="fas fa-eye"></i>
                                                 </button>
-                                                <button className="action-btn delete" title="Delete User" onClick={() => handleDeleteUser(user.id)}>
+                                                <button
+                                                    className="action-btn delete"
+                                                    title="Delete User"
+                                                    onClick={() => handleDeleteUser(user.id)}
+                                                >
                                                     <i className="fas fa-trash"></i>
                                                 </button>
                                             </div>
@@ -118,7 +161,7 @@ const Customers = () => {
                                 {filteredUsers.length === 0 && (
                                     <tr>
                                         <td colSpan="5" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
-                                            No users found.
+                                            No users found matching your search.
                                         </td>
                                     </tr>
                                 )}
@@ -127,6 +170,44 @@ const Customers = () => {
                     </div>
                 </div>
             </div>
+            <style>{`
+                @keyframes slideInDown {
+                    from { opacity: 0; transform: translateY(-30px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                @keyframes scaleIn {
+                    from { opacity: 0; transform: scale(0.95); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+
+                .admin-modal {
+                    animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                }
+
+                .admin-table tr {
+                    transition: all 0.2s ease;
+                }
+
+                .admin-table tr:hover {
+                    background-color: #fdfaf9 !important;
+                    transform: scale(1.002);
+                }
+
+                .action-btn {
+                    cursor: pointer;
+                    transition: transform 0.2s ease;
+                }
+
+                .action-btn:hover {
+                    transform: scale(1.2);
+                }
+            `}</style>
 
             {/* View User Modal */}
             {showViewModal && selectedUser && (

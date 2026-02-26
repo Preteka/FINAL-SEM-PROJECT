@@ -18,19 +18,36 @@ const Chatbot = () => {
         scrollToBottom();
     }, [messages, isOpen]);
 
-    const handleSend = () => {
+    const handleSend = async () => {
         if (!input.trim()) return;
 
-        setMessages(prev => [...prev, { text: input, sender: 'user' }]);
+        const userMessage = { text: input, sender: 'user' };
+        setMessages(prev => [...prev, userMessage]);
         setInput("");
 
-        // Simulate bot response
-        setTimeout(() => {
+        try {
+            const response = await fetch('http://localhost:5000/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: input }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setMessages(prev => [...prev, { text: data.reply, sender: 'bot' }]);
+            } else {
+                throw new Error(data.error || 'Failed to get response');
+            }
+        } catch (error) {
+            console.error('Chat Error:', error);
             setMessages(prev => [...prev, {
-                text: "Thank you for your message. Our team will get back to you shortly. For immediate assistance, please call our support line.",
+                text: "I'm having trouble connecting to the server. Please try again later.",
                 sender: 'bot'
             }]);
-        }, 1000);
+        }
     };
 
     const options = [

@@ -217,25 +217,7 @@ const ProductDetails = () => {
                             </div>
                         </div>
 
-                        {/* Features Bar */}
-                        <div className="bottom-features">
-                            <div className="feature-pill">
-                                <ShieldCheck size={18} />
-                                <span>Warranty</span>
-                            </div>
-                            <div className="feature-pill">
-                                <Truck size={18} />
-                                <span>Express</span>
-                            </div>
-                            <div className="feature-pill">
-                                <Award size={18} />
-                                <span>ISI Grade</span>
-                            </div>
-                            <div className="feature-pill" style={{ cursor: 'pointer' }}>
-                                <Share2 size={18} />
-                                <span>Share</span>
-                            </div>
-                        </div>
+
 
                         <div style={{ marginTop: '30px', padding: '20px', border: '1px dashed #ddd', borderRadius: '15px', color: '#888', fontSize: '0.85rem' }}>
                             <strong>Expert Note:</strong> Recommended for humid environments and heavy-load furniture. Always ensure professional installation.

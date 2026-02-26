@@ -1,6 +1,4 @@
 import React, { useRef, useEffect } from 'react';
-import { ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import "../../index.css";
 
 const Applications = () => {
@@ -37,11 +35,7 @@ const Applications = () => {
             image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80",
             desc: "Professional aesthetics for workspaces"
         },
-        {
-            title: "Bedroom",
-            image: "https://images.unsplash.com/photo-1616594039964-40891a909639?auto=format&fit=crop&w=800&q=80",
-            desc: "Warm textures for relaxation"
-        }
+
     ];
 
     return (
@@ -127,31 +121,6 @@ const Applications = () => {
                     ))}
                 </div>
 
-                <div className="reveal" style={{ textAlign: 'center', marginTop: 'var(--space-12)' }}>
-                    <Link to="/products" className="btn" style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        padding: '12px 28px',
-                        border: '2px solid var(--color-primary)',
-                        borderRadius: 'var(--radius-full)',
-                        color: 'var(--color-primary)',
-                        fontWeight: 'var(--font-semibold)',
-                        textDecoration: 'none',
-                        transition: 'var(--transition)'
-                    }}
-                        onMouseOver={(e) => {
-                            e.currentTarget.style.backgroundColor = 'var(--color-primary)';
-                            e.currentTarget.style.color = 'white';
-                        }}
-                        onMouseOut={(e) => {
-                            e.currentTarget.style.backgroundColor = 'transparent';
-                            e.currentTarget.style.color = 'var(--color-primary)';
-                        }}
-                    >
-                        Explore All Applications <ArrowRight size={18} />
-                    </Link>
-                </div>
             </div>
 
             <style>{`

@@ -70,7 +70,7 @@ const WhyVinayaga = () => {
                                 margin: 0,
                                 lineHeight: '1'
                             }}>
-                                25+
+                                5+
                             </h3>
                             <p style={{
                                 margin: '5px 0 0',
