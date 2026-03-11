@@ -84,23 +84,6 @@ const WhyVinayaga = () => {
                             </p>
                         </div>
 
-                        {/* Decorative circle behind card */}
-                        <div style={{
-                            position: 'absolute',
-                            left: '-30px',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            width: '120px',
-                            height: '120px',
-                            borderRadius: '50%',
-                            border: '1px solid var(--color-border)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            zIndex: 1
-                        }}>
-                            <img src="/api/placeholder/100/30" alt="Quality Logo" style={{ opacity: 0.3, width: '80px' }} />
-                        </div>
                     </div>
 
                     {/* Right Side: Content */}

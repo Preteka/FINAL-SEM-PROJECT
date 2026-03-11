@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Download, Printer, Mail, Phone, MapPin, Calendar, FileText } from 'lucide-react';
 import AdminHeader from '../../components/Header/Header';
 import { useOrders } from '../../hooks/useOrders';
 import { db } from '../../../shared/services/firebase';
@@ -10,6 +11,7 @@ const AdminOrders = () => {
     const [filterStatus, setFilterStatus] = useState('all');
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const [showInvoiceView, setShowInvoiceView] = useState(false);
 
     const filteredOrders = orders.filter(order => {
         const matchesSearch =
@@ -62,6 +64,119 @@ const AdminOrders = () => {
     const handleViewDetails = (order) => {
         setSelectedOrder(order);
         setShowDetailsModal(true);
+        setShowInvoiceView(false); // Default to details view
+    };
+
+    const handleViewInvoice = (order) => {
+        setSelectedOrder(order);
+        setShowDetailsModal(true);
+        setShowInvoiceView(true);
+    };
+
+    const downloadInvoice = () => {
+        if (!selectedOrder) return;
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 800;
+        canvas.height = 1000;
+
+        // Background
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Header
+        ctx.fillStyle = '#5D4037';
+        ctx.fillRect(0, 0, canvas.width, 120);
+
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 32px Arial';
+        ctx.fillText('VINAYAGA GLASS & PLYWOODS', 40, 70);
+        ctx.font = '16px Arial';
+        ctx.fillText('OFFICIAL TAX INVOICE', 40, 100);
+
+        // Order Info
+        ctx.fillStyle = '#333';
+        ctx.font = 'bold 22px Arial';
+        ctx.fillText(`Invoice ID: ${selectedOrder.orderId || selectedOrder.id.substring(0, 8).toUpperCase()}`, 40, 170);
+        ctx.font = '16px Arial';
+        ctx.fillText(`Date: ${new Date(selectedOrder.createdAt).toLocaleDateString()}`, 40, 200);
+
+        // Customer Info
+        ctx.fillText('Billed To:', 40, 250);
+        ctx.font = 'bold 18px Arial';
+        ctx.fillText(selectedOrder.customerName || 'Guest User', 40, 275);
+        ctx.font = '16px Arial';
+        ctx.fillText(selectedOrder.customerEmail || selectedOrder.userEmail || 'N/A', 40, 300);
+        ctx.fillText(selectedOrder.customerPhone || 'N/A', 40, 325);
+
+        ctx.font = '14px Arial';
+        const addressLines = (selectedOrder.shippingAddress || 'N/A').split(', ');
+        addressLines.forEach((line, i) => {
+            ctx.fillText(line, 40, 350 + (i * 20));
+        });
+
+        // Table Header
+        ctx.fillStyle = '#f1f5f9';
+        ctx.fillRect(40, 420, 720, 45);
+        ctx.fillStyle = '#334155';
+        ctx.font = 'bold 16px Arial';
+        ctx.fillText('Description', 55, 450);
+        ctx.fillText('Qty', 480, 450);
+        ctx.fillText('Price', 580, 450);
+        ctx.fillText('Amount', 680, 450);
+
+        // Items
+        let y = 495;
+        (selectedOrder.items || []).forEach(item => {
+            ctx.fillStyle = '#1e293b';
+            ctx.font = '14px Arial';
+            ctx.fillText(item.name.substring(0, 50), 55, y);
+            ctx.fillText(item.quantity.toString(), 480, y);
+            ctx.fillText(`₹${(item.price ? parseInt(item.price.replace(/[^\d]/g, '')) : 0).toLocaleString()}`, 580, y);
+            const itemTotal = (item.price ? parseInt(item.price.replace(/[^\d]/g, '')) : 0) * item.quantity;
+            ctx.fillText(`₹${itemTotal.toLocaleString()}`, 680, y);
+
+            ctx.strokeStyle = '#f1f5f9';
+            ctx.beginPath();
+            ctx.moveTo(40, y + 10);
+            ctx.lineTo(760, y + 10);
+            ctx.stroke();
+
+            y += 40;
+        });
+
+        // Totals
+        y += 20;
+        ctx.fillStyle = '#333';
+        ctx.font = 'bold 16px Arial';
+        ctx.fillText('Subtotal:', 530, y);
+        ctx.fillText(`₹${(selectedOrder.subtotal || 0).toLocaleString()}`, 680, y);
+
+        y += 30;
+        ctx.fillText('Shipping:', 530, y);
+        ctx.fillText(`₹${(selectedOrder.shipping || 0).toLocaleString()}`, 680, y);
+
+        y += 40;
+        ctx.fillStyle = '#5D4037';
+        ctx.font = 'bold 22px Arial';
+        ctx.fillText('GRAND TOTAL:', 450, y);
+        ctx.fillText(`₹${(selectedOrder.total || selectedOrder.totalAmount || 0).toLocaleString()}`, 680, y);
+
+        // Footer
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = 'italic 14px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('This is a computer generated invoice. No signature required.', canvas.width / 2, 940);
+        ctx.font = 'bold 16px Arial';
+        ctx.fillStyle = '#5D4037';
+        ctx.fillText('Thank you for your business!', canvas.width / 2, 970);
+
+        // Download
+        const link = document.createElement('a');
+        link.download = `Invoice-${selectedOrder.id.substring(0, 8).toUpperCase()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
     };
 
     const handleDeleteOrder = async (orderId) => {
@@ -219,8 +334,8 @@ const AdminOrders = () => {
                                                     <div style={{ display: 'flex', gap: '0.6rem' }}>
                                                         <button
                                                             className="action-btn"
-                                                            title="View Details"
-                                                            onClick={() => handleViewDetails(order)}
+                                                            title="View Invoice"
+                                                            onClick={() => handleViewInvoice(order)}
                                                             style={{ color: '#8d6e63' }}
                                                         >
                                                             <i className="fas fa-eye"></i>
@@ -355,90 +470,217 @@ const AdminOrders = () => {
                         </div>
 
                         <div style={{ padding: '2rem' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem', marginBottom: '2.5rem' }}>
-                                {/* Customer Info */}
-                                <div style={{ background: '#fdfaf9', padding: '1.5rem', borderRadius: '12px', border: '1px solid #efebe9' }}>
-                                    <h4 style={{ color: '#8d6e63', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <i className="fas fa-user"></i> Customer Info
-                                    </h4>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                        <p style={{ margin: 0 }}><strong>Name:</strong> {selectedOrder.customerName || 'N/A'}</p>
-                                        <p style={{ margin: 0 }}><strong>Email:</strong> {selectedOrder.customerEmail || selectedOrder.userEmail}</p>
-                                        <p style={{ margin: 0 }}><strong>Phone:</strong> {selectedOrder.customerPhone || 'N/A'}</p>
-                                        <div style={{ marginTop: '0.5rem' }}>
-                                            <strong>Shipping Address:</strong>
-                                            <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.9rem', color: '#64748b', lineHeight: '1.5' }}>
-                                                {selectedOrder.shippingAddress || 'N/A'}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Order Summary */}
-                                <div style={{ background: '#fdfaf9', padding: '1.5rem', borderRadius: '12px', border: '1px solid #efebe9' }}>
-                                    <h4 style={{ color: '#8d6e63', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                        <i className="fas fa-info-circle"></i> Order Summary
-                                    </h4>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                        <p style={{ margin: 0 }}><strong>Status:</strong> {selectedOrder.status?.toUpperCase() || 'PENDING'}</p>
-                                        <p style={{ margin: 0 }}><strong>Date:</strong> {formatDate(selectedOrder.createdAt)}</p>
-                                        <p style={{ margin: 0 }}><strong>Payment:</strong> {selectedOrder.paymentMethod?.toUpperCase() || 'COD'}</p>
-                                        <div style={{ marginTop: '0.5rem', borderTop: '1px dashed #efebe9', paddingTop: '0.5rem' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
-                                                <span>Subtotal:</span>
-                                                <span>₹{(selectedOrder.subtotal || 0).toLocaleString()}</span>
+                            {showInvoiceView ? (
+                                <div className="invoice-container" style={{
+                                    backgroundColor: 'white',
+                                    borderRadius: '16px',
+                                    border: '1px solid #eee',
+                                    overflow: 'hidden',
+                                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+                                }}>
+                                    {/* Invoice Header */}
+                                    <div style={{ backgroundColor: '#5D4037', padding: '1.5rem', color: 'white' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div>
+                                                <h2 style={{ fontSize: '1.5rem', fontWeight: '900', margin: 0 }}>VINAYAGA</h2>
+                                                <p style={{ margin: '2px 0 0 0', opacity: 0.8, fontSize: '10px', letterSpacing: '1px' }}>GLASS & PLYWOODS</p>
                                             </div>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
-                                                <span>Shipping:</span>
-                                                <span>₹{(selectedOrder.shipping || 0).toLocaleString()}</span>
-                                            </div>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', fontWeight: 'bold', color: '#5d4037', fontSize: '1.1rem' }}>
-                                                <span>Total:</span>
-                                                <span>₹{(selectedOrder.total || selectedOrder.totalAmount || 0).toLocaleString()}</span>
+                                            <div style={{ textAlign: 'right' }}>
+                                                <h3 style={{ margin: 0, opacity: 0.9, fontSize: '1.2rem' }}>INVOICE</h3>
+                                                <p style={{ margin: '2px 0 0 0', fontWeight: 'bold' }}>#{selectedOrder.orderId || selectedOrder.id.substring(0, 8).toUpperCase()}</p>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
 
-                            {/* Itemized List */}
-                            <h4 style={{ color: '#5d4037', marginBottom: '1rem' }}>Purchased Items</h4>
-                            <div className="admin-table-wrapper" style={{ border: '1px solid #eee', borderRadius: '12px' }}>
-                                <table className="admin-table" style={{ margin: 0 }}>
-                                    <thead style={{ background: '#f8fafc' }}>
-                                        <tr>
-                                            <th>Product</th>
-                                            <th>Price</th>
-                                            <th>Qty</th>
-                                            <th>Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {selectedOrder.items?.map((item, idx) => (
-                                            <tr key={idx}>
-                                                <td>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                                        <img
-                                                            src={item.image}
-                                                            alt={item.name}
-                                                            style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover' }}
-                                                        />
-                                                        <span style={{ fontWeight: 500 }}>{item.name}</span>
+                                    <div style={{ padding: '1.5rem' }}>
+                                        {/* Billing Info */}
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
+                                            <div>
+                                                <h4 style={{ color: '#888', textTransform: 'uppercase', fontSize: '10px', marginBottom: '10px', letterSpacing: '1px' }}>Billed To</h4>
+                                                <p style={{ fontWeight: 'bold', margin: '0 0 4px 0', fontSize: '1rem' }}>{selectedOrder.customerName || 'Guest User'}</p>
+                                                <div style={{ color: '#555', fontSize: '0.85rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Mail size={12} /> {selectedOrder.customerEmail || selectedOrder.userEmail || 'N/A'}</span>
+                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Phone size={12} /> {selectedOrder.customerPhone || 'N/A'}</span>
+                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MapPin size={12} /> {selectedOrder.shippingAddress || 'N/A'}</span>
+                                                </div>
+                                            </div>
+                                            <div style={{ textAlign: 'right' }}>
+                                                <h4 style={{ color: '#888', textTransform: 'uppercase', fontSize: '10px', marginBottom: '10px', letterSpacing: '1px' }}>Order Date</h4>
+                                                <p style={{ fontWeight: 'bold', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
+                                                    <Calendar size={14} /> {formatDate(selectedOrder.createdAt)}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Table */}
+                                        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem' }}>
+                                            <thead style={{ backgroundColor: '#f8fafc' }}>
+                                                <tr>
+                                                    <th style={{ padding: '10px', textAlign: 'left', borderBottom: '2px solid #e2e8f0', fontSize: '0.75rem' }}>Product</th>
+                                                    <th style={{ padding: '10px', textAlign: 'center', borderBottom: '2px solid #e2e8f0', fontSize: '0.75rem' }}>Qty</th>
+                                                    <th style={{ padding: '10px', textAlign: 'right', borderBottom: '2px solid #e2e8f0', fontSize: '0.75rem' }}>Price</th>
+                                                    <th style={{ padding: '10px', textAlign: 'right', borderBottom: '2px solid #e2e8f0', fontSize: '0.75rem' }}>Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {selectedOrder.items?.map((item, idx) => (
+                                                    <tr key={idx}>
+                                                        <td style={{ padding: '10px', borderBottom: '1px solid #f1f5f9', fontSize: '0.85rem' }}>{item.name}</td>
+                                                        <td style={{ padding: '10px', textAlign: 'center', borderBottom: '1px solid #f1f5f9', fontSize: '0.85rem' }}>{item.quantity}</td>
+                                                        <td style={{ padding: '10px', textAlign: 'right', borderBottom: '1px solid #f1f5f9', fontSize: '0.85rem' }}>₹{(item.price ? parseInt(item.price.replace(/[^\d]/g, '')) : 0).toLocaleString()}</td>
+                                                        <td style={{ padding: '10px', textAlign: 'right', borderBottom: '1px solid #f1f5f9', fontWeight: 'bold', fontSize: '0.85rem' }}>₹{((item.price ? parseInt(item.price.replace(/[^\d]/g, '')) : 0) * item.quantity).toLocaleString()}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+
+                                        {/* Summary */}
+                                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                            <div style={{ width: '250px' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.85rem' }}>
+                                                    <span style={{ color: '#64748b' }}>Subtotal</span>
+                                                    <span style={{ fontWeight: 'bold' }}>₹{(selectedOrder.subtotal || 0).toLocaleString()}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '0.85rem' }}>
+                                                    <span style={{ color: '#64748b' }}>Shipping</span>
+                                                    <span style={{ fontWeight: 'bold' }}>₹{(selectedOrder.shipping || 0).toLocaleString()}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '10px', borderTop: '2px solid #334155' }}>
+                                                    <span style={{ fontSize: '1rem', fontWeight: '900' }}>TOTAL</span>
+                                                    <span style={{ fontSize: '1rem', fontWeight: '900', color: '#5D4037' }}>₹{(selectedOrder.total || selectedOrder.totalAmount || 0).toLocaleString()}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem', marginBottom: '2.5rem' }}>
+                                        {/* Customer Info */}
+                                        <div style={{ background: '#fdfaf9', padding: '1.5rem', borderRadius: '12px', border: '1px solid #efebe9' }}>
+                                            <h4 style={{ color: '#8d6e63', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <i className="fas fa-user"></i> Customer Info
+                                            </h4>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                                <p style={{ margin: 0 }}><strong>Name:</strong> {selectedOrder.customerName || 'Guest User'}</p>
+                                                <p style={{ margin: 0 }}><strong>Email:</strong> {selectedOrder.customerEmail || selectedOrder.userEmail || 'N/A'}</p>
+                                                <p style={{ margin: 0 }}><strong>Phone:</strong> {selectedOrder.customerPhone || 'N/A'}</p>
+                                                <div style={{ marginTop: '0.5rem' }}>
+                                                    <strong>Shipping Address:</strong>
+                                                    <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.9rem', color: '#64748b', lineHeight: '1.5' }}>
+                                                        {selectedOrder.shippingAddress || 'N/A'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Order Summary */}
+                                        <div style={{ background: '#fdfaf9', padding: '1.5rem', borderRadius: '12px', border: '1px solid #efebe9' }}>
+                                            <h4 style={{ color: '#8d6e63', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <i className="fas fa-info-circle"></i> Order Summary
+                                            </h4>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                                <p style={{ margin: 0 }}><strong>Status:</strong> {selectedOrder.status?.toUpperCase() || 'PENDING'}</p>
+                                                <p style={{ margin: 0 }}><strong>Date:</strong> {formatDate(selectedOrder.createdAt)}</p>
+                                                <p style={{ margin: 0 }}><strong>Payment:</strong> {selectedOrder.paymentMethod?.toUpperCase() || 'COD'}</p>
+                                                <div style={{ marginTop: '0.5rem', borderTop: '1px dashed #efebe9', paddingTop: '0.5rem' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
+                                                        <span>Subtotal:</span>
+                                                        <span>₹{(selectedOrder.subtotal || 0).toLocaleString()}</span>
                                                     </div>
-                                                </td>
-                                                <td>{item.price}</td>
-                                                <td>{item.quantity}</td>
-                                                <td style={{ fontWeight: 'bold' }}>
-                                                    ₹{(parseInt(item.price.replace(/[^\d]/g, '')) * item.quantity).toLocaleString()}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.2rem' }}>
+                                                        <span>Shipping:</span>
+                                                        <span>₹{(selectedOrder.shipping || 0).toLocaleString()}</span>
+                                                    </div>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', fontWeight: 'bold', color: '#5d4037', fontSize: '1.1rem' }}>
+                                                        <span>Total:</span>
+                                                        <span>₹{(selectedOrder.total || selectedOrder.totalAmount || 0).toLocaleString()}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Itemized List */}
+                                    <h4 style={{ color: '#5d4037', marginBottom: '1rem' }}>Purchased Items</h4>
+                                    <div className="admin-table-wrapper" style={{ border: '1px solid #eee', borderRadius: '12px' }}>
+                                        <table className="admin-table" style={{ margin: 0 }}>
+                                            <thead style={{ background: '#f8fafc' }}>
+                                                <tr>
+                                                    <th>Product</th>
+                                                    <th>Price</th>
+                                                    <th>Qty</th>
+                                                    <th>Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {selectedOrder.items?.map((item, idx) => (
+                                                    <tr key={idx}>
+                                                        <td>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                                                <img
+                                                                    src={item.image}
+                                                                    alt={item.name}
+                                                                    style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover' }}
+                                                                />
+                                                                <span style={{ fontWeight: 500 }}>{item.name}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td>{item.price}</td>
+                                                        <td>{item.quantity}</td>
+                                                        <td style={{ fontWeight: 'bold' }}>
+                                                            ₹{((item.price ? parseInt(item.price.replace(/[^\d]/g, '')) : 0) * item.quantity).toLocaleString()}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </>
+                            )}
                         </div>
 
-                        <div style={{ padding: '1.5rem', borderTop: '1px solid #eee', textAlign: 'right' }}>
+                        <div style={{ padding: '1.5rem', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                            {showInvoiceView && (
+                                <>
+                                    <button
+                                        className="action-btn"
+                                        onClick={downloadInvoice}
+                                        style={{
+                                            padding: '0.75rem 1.5rem',
+                                            background: '#334155',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            fontWeight: '600',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem'
+                                        }}
+                                    >
+                                        <Download size={18} /> Download
+                                    </button>
+                                    <button
+                                        className="action-btn"
+                                        onClick={() => window.print()}
+                                        style={{
+                                            padding: '0.75rem 1.5rem',
+                                            background: '#f1f5f9',
+                                            color: '#334155',
+                                            border: '1px solid #e2e8f0',
+                                            borderRadius: '8px',
+                                            fontWeight: '600',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem'
+                                        }}
+                                    >
+                                        <Printer size={18} /> Print
+                                    </button>
+                                </>
+                            )}
                             <button
                                 className="action-btn"
                                 onClick={() => setShowDetailsModal(false)}

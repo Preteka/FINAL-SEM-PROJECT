@@ -1,10 +1,11 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from '../pages/Home/Home';
 import Products from '../pages/Products/Products';
 import ProductDetails from '../pages/ProductDetails/ProductDetails';
 import LoginRegister from '../pages/Profile/LoginRegister';
 import Profile from '../pages/Profile/Profile';
+import Addresses from '../pages/Profile/Addresses';
 import Cart from '../pages/Cart/Cart';
 import Checkout from '../pages/Checkout/Checkout';
 import Orders from '../pages/Orders/Orders';
@@ -21,8 +22,9 @@ const UserRoutes = () => {
             <Route path="/product/:productId" element={<ProductDetails />} />
             <Route path="/cost-estimation" element={<CostEstimation />} />
             <Route path="/color-palette" element={<ColorPalette />} />
-            <Route path="/login" element={<LoginRegister />} />
+            <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/addresses" element={<Addresses />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/orders" element={<Orders />} />

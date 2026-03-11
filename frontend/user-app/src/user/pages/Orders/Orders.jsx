@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ProfileLayout from '../../components/Profile/ProfileLayout';
+import { useNavigate } from 'react-router-dom';
 import { History, Clock, ChevronRight, Package, X, MapPin, Phone, Mail, FileText, Layout, ReceiptText, Truck, ClipboardCheck } from 'lucide-react';
 import { db } from '../../../shared/services/firebase';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
@@ -10,6 +11,7 @@ const Orders = () => {
     const [loading, setLoading] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const { user } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -214,7 +216,8 @@ const Orders = () => {
                             </div>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-6)', marginBottom: 'var(--space-8)' }}>
+                        {/* Order Details Grid */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 'var(--space-6)', marginBottom: 'var(--space-8)' }}>
                             {/* Shipping Info */}
                             <div style={{ backgroundColor: '#f8fafc', padding: 'var(--space-5)', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
                                 <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: 'var(--space-4)', fontSize: '15px', color: 'var(--color-primary)' }}>
@@ -258,10 +261,10 @@ const Orders = () => {
                                         display: 'flex',
                                         justifyContent: 'space-between',
                                         fontSize: '18px',
-                                        fontWeight: 'var(--font-bold)',
+                                        fontWeight: '800',
                                         color: '#5d4037',
-                                        marginTop: '10px',
-                                        paddingTop: '10px',
+                                        marginTop: 'auto',
+                                        paddingTop: '15px',
                                         borderTop: '1px dashed #cbd5e1'
                                     }}>
                                         <span>Total Paid</span>
@@ -282,20 +285,20 @@ const Orders = () => {
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: 'var(--space-4)',
-                                        padding: 'var(--space-3)',
-                                        borderRadius: '12px',
-                                        border: '1px solid var(--color-border-light)',
-                                        backgroundColor: 'white'
+                                        padding: 'var(--space-4)',
+                                        borderRadius: '16px',
+                                        border: '1px solid #f1f5f9',
+                                        backgroundColor: '#f8fafc'
                                     }}>
-                                        <div style={{ width: '60px', height: '60px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #f1f5f9', flexShrink: 0 }}>
+                                        <div style={{ width: '70px', height: '70px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0', flexShrink: 0 }}>
                                             <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                         </div>
                                         <div style={{ flex: 1 }}>
-                                            <h5 style={{ margin: 0, fontSize: '14px', fontWeight: 'var(--font-semibold)' }}>{item.name}</h5>
-                                            <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'var(--color-text-muted)' }}>Qty: {item.quantity || 1}</p>
+                                            <h5 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>{item.name}</h5>
+                                            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>Quantity: {item.quantity || 1}</p>
                                         </div>
                                         <div style={{ textAlign: 'right' }}>
-                                            <span style={{ fontSize: '15px', fontWeight: 'var(--font-bold)', color: 'var(--color-primary)' }}>₹{item.price.toLocaleString()}</span>
+                                            <span style={{ fontSize: '16px', fontWeight: '800', color: '#5d4037' }}>₹{item.price.toLocaleString()}</span>
                                         </div>
                                     </div>
                                 ))}
@@ -398,10 +401,25 @@ const Orders = () => {
                     </h3>
                     <p style={{
                         color: 'var(--color-text-light)',
-                        fontSize: 'var(--text-base)'
+                        fontSize: 'var(--text-base)',
+                        marginBottom: 'var(--space-6)'
                     }}>
                         You haven't placed any orders yet.
                     </p>
+                    <button
+                        onClick={() => navigate('/profile', { state: { openAddAddress: true } })}
+                        className="btn btn-primary"
+                        style={{
+                            padding: '12px 24px',
+                            borderRadius: '12px',
+                            fontWeight: '600',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }}
+                    >
+                        <MapPin size={18} /> Go to Profile & Add Address
+                    </button>
                 </div>
             </ProfileLayout>
         );

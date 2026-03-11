@@ -65,7 +65,7 @@ const BrandStory = () => {
                             className="video-thumbnail"
                         >
                             <img
-                                src="https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=800&q=80"
+                                src="/images/shop.png"
                                 alt="Factory Tour"
                                 style={{ width: '100%', height: '400px', objectFit: 'cover', transition: 'transform 0.5s ease' }}
                             />

@@ -27,7 +27,6 @@ const ProductDetails = () => {
     const [product, setProduct] = useState(null);
     const [mainImage, setMainImage] = useState('');
     const [quantity, setQuantity] = useState(1);
-    const [area, setArea] = useState('');
     const [showNotification, setShowNotification] = useState(false);
 
     useEffect(() => {
@@ -186,6 +185,21 @@ const ProductDetails = () => {
                                     <span className="spec-value">{product.usage || 'Interiors'}</span>
                                 </div>
                             </div>
+
+                            {/* Additional Specifications/Features */}
+                            {product.features && product.features.length > 0 && (
+                                <div className="product-features-premium">
+                                    <h3 className="features-title">Specifications</h3>
+                                    <ul className="features-list">
+                                        {product.features.map((feature, index) => (
+                                            <li key={index} className="feature-item">
+                                                <Check size={16} className="feature-icon" />
+                                                <span>{feature}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                         </div>
 
                         {/* Controls */}
@@ -195,15 +209,6 @@ const ProductDetails = () => {
                                     <button onClick={() => setQuantity(Math.max(1, quantity - 1))}>−</button>
                                     <span>{quantity}</span>
                                     <button onClick={() => setQuantity(quantity + 1)}>+</button>
-                                </div>
-                                <div className="area-input-box">
-                                    <input
-                                        type="number"
-                                        value={area}
-                                        onChange={(e) => setArea(e.target.value)}
-                                        placeholder="Estimate Area"
-                                    />
-                                    <span className="area-unit">SQ.FT</span>
                                 </div>
                             </div>
 

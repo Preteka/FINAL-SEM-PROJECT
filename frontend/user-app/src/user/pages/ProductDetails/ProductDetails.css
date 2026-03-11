@@ -217,28 +217,42 @@
     font-weight: 700;
 }
 
-.area-input-box {
-    flex-grow: 1;
-    background: white;
-    border-radius: 12px;
-    padding: 10px 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+/* Features List */
+.product-features-premium {
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.features-title {
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-primary);
+    margin-bottom: 15px;
+}
+
+.features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.feature-item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    font-size: 0.95rem;
+    color: var(--color-text);
 }
 
-.area-input-box input {
-    border: none;
-    width: 100%;
-    font-weight: 600;
-    outline: none;
-}
-
-.area-unit {
-    color: var(--color-text-light);
-    font-size: 0.8rem;
-    white-space: nowrap;
+.feature-icon {
+    color: var(--color-primary);
+    flex-shrink: 0;
 }
 
 .action-buttons {

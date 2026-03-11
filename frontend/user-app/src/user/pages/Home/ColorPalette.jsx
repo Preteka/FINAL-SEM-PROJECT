@@ -15,47 +15,84 @@ const rooms = [
     {
         id: 'kitchen',
         name: 'Kitchen',
-        image: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=800&q=80',
-        description: 'Vibrant and functional'
+        image: 'images/kitchen.png',
+        description: 'Vibrant and functional',
+        variants: {
+            'natural-wood': '/images/kitchen-brown.png',
+            'white-neutral': '/images/kitchen-white.png',
+            'greenish-silver': '/images/kitchen-silver.png',
+            'deep-blue': '/images/kitchen-blue.png',
+            'earthy-green': '/images/kitchen-green.png',
+            'warm-yellow': '/images/kitchen-yellow.png',
+            'soft-pink': '/images/kitchen-pink.png',
+            'pastel-purple': '/images/kitchen-purple.png',
+            'bold-orange': '/images/kitchen-orange.png',
+            'fresh-cyan': '/images/kitchen-cyen.png'
+        }
     },
     {
         id: 'hall',
         name: 'Living Room',
-        image: 'https://images.unsplash.com/photo-1583847268964-b28dc2f51ac9?auto=format&fit=crop&w=800&q=80',
-        description: 'Warm and inviting'
+        image: 'images/hall.png',
+        description: 'Warm and inviting',
+        variants: {
+            'natural-wood': '/images/hall-brown.png',
+            'white-neutral': '/images/hall-white.png',
+            'greenish-silver': '/images/hall-silver.png',
+            'deep-blue': '/images/hall-blue.png',
+            'earthy-green': '/images/hall-green.png',
+            'warm-yellow': '/images/hall-yellow.png',
+            'soft-pink': '/images/hall-pink.png',
+            'pastel-purple': '/images/hall-purple.png',
+            'bold-orange': '/images/hall-orange.png',
+            'fresh-cyan': '/images/hall-cyen.png'
+        }
     },
     {
         id: 'bedroom',
         name: 'Bedroom',
         image: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=800&q=80',
-        description: 'Calm and serene'
+        description: 'Calm and serene',
+        variants: {
+            'natural-wood': '/images/bedroom-brown.png',
+            'white-neutral': '/images/bedroom-white.png',
+            'greenish-silver': '/images/bedroom-silver.png',
+            'deep-blue': '/images/bedroom-blue.png',
+            'earthy-green': '/images/bedroom-green.png',
+            'warm-yellow': '/images/bedroom-yellow.png',
+            'soft-pink': '/images/bedroom-pink.png',
+            'pastel-purple': '/images/bedroom-purple.png',
+            'bold-orange': '/images/bedroom-orange.png',
+            'fresh-cyan': '/images/bedroom-cyen.png'
+        }
     }
 ];
 
 const primaryColors = [
     { id: 'natural-wood', name: 'Natural Wood', hex: '#8B5E3C', text: 'white' },
     { id: 'white-neutral', name: 'White Neutral', hex: '#F5F5F7', text: 'black' },
-    { id: 'dark-neutral', name: 'Dark Neutral', hex: '#2D2D2D', text: 'white' },
+    { id: 'greenish-silver', name: 'Greenish Silver', hex: '#C8D4CF', text: 'white' },
     { id: 'deep-blue', name: 'Deep Blue', hex: '#1E3A8A', text: 'white' },
     { id: 'earthy-green', name: 'Earthy Green', hex: '#3F4E33', text: 'white' },
     { id: 'warm-yellow', name: 'Warm Yellow', hex: '#D97706', text: 'white' },
     { id: 'soft-pink', name: 'Soft Pink', hex: '#DB2777', text: 'white' },
-    { id: 'pastel-purple', name: 'Pastel Purple', hex: '#7C3AED', text: 'white' },
+    { id: 'pastel-purple', name: 'Pastel Purple', hex: '#B497B7', text: 'white' },
     { id: 'bold-orange', name: 'Bold Orange', hex: '#EA580C', text: 'white' },
     { id: 'fresh-cyan', name: 'Fresh Cyan', hex: '#0891B2', text: 'white' }
 ];
 
 // Simple matching logic: monochromatic or complementary shades
+
 const getMatchingColor = (primaryHex) => {
     const matchingMap = {
         '#8B5E3C': { name: 'Warm White', hex: '#FFFCF8' }, // Natural Wood
         '#F5F5F7': { name: 'Chocolate Brown', hex: '#5D4037' }, // White Neutral
-        '#2D2D2D': { name: 'Ivory Beige', hex: '#F5F1EC' }, // Dark Neutral
+        '#C8D4CF': { name: 'Ivory Beige', hex: '#F5F1EC' }, // Dark Neutral
         '#1E3A8A': { name: 'Soft Cream', hex: '#FAF8F5' }, // Deep Blue
         '#3F4E33': { name: 'Sand Beige', hex: '#E5DDD4' }, // Earthy Green
         '#D97706': { name: 'Charcoal', hex: '#333333' }, // Warm Yellow
         '#DB2777': { name: 'Light Grey', hex: '#D1D5DB' }, // Soft Pink
-        '#7C3AED': { name: 'Pure White', hex: '#FFFFFF' }, // Pastel Purple
+        '#B497B7': { name: 'Pure White', hex: '#FFFFFF' }, // Pastel Purple
         '#EA580C': { name: 'Soft Ivory White', hex: '#FFFDF5' }, // Bold Orange
         '#0891B2': { name: 'Light Warm Wood Beige', hex: '#E8DED5' } // Fresh Cyan
     };
@@ -96,7 +133,9 @@ const ColorPalette = () => {
 
         // Ensure CORS is handled for Unsplash images
         img.crossOrigin = 'anonymous';
-        img.src = selectedRoom.image;
+        // Use color-specific image if available
+        const baseImage = selectedRoom.variants?.[selectedPrimary.id] || selectedRoom.image;
+        img.src = baseImage;
 
         img.onload = () => {
             // Set canvas size to match image
@@ -106,17 +145,20 @@ const ColorPalette = () => {
             // Draw base image
             ctx.drawImage(img, 0, 0);
 
-            // Step 1: Apply Primary Color (Multiply overlap)
-            ctx.globalCompositeOperation = 'multiply';
-            ctx.fillStyle = selectedPrimary.hex;
-            ctx.globalAlpha = 0.25;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Step 1: Apply color overlays ONLY if not using a specific variant image
+            if (!selectedRoom.variants?.[selectedPrimary.id]) {
+                // Step 1: Apply Primary Color (Multiply overlap)
+                ctx.globalCompositeOperation = 'multiply';
+                ctx.fillStyle = selectedPrimary.hex;
+                ctx.globalAlpha = 0.25;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Step 2: Apply Color Burn (Simulated)
-            ctx.globalCompositeOperation = 'color-burn';
-            ctx.fillStyle = selectedPrimary.hex;
-            ctx.globalAlpha = 0.1;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // Step 2: Apply Color Burn (Simulated)
+                ctx.globalCompositeOperation = 'color-burn';
+                ctx.fillStyle = selectedPrimary.hex;
+                ctx.globalAlpha = 0.1;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
 
             // Step 3: Draw Branding / Label
             ctx.globalCompositeOperation = 'source-over';
@@ -315,17 +357,25 @@ const ColorPalette = () => {
                             {/* Visual Preview Container */}
                             <div className="xl:w-3/5 w-full relative">
                                 <div className="rounded-[80px] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] relative group border-[20px] border-white ring-1 ring-stone-100">
-                                    <img src={selectedRoom.image} alt="Room Preview" className="w-full aspect-[4/3] object-cover" />
+                                    <img
+                                        src={selectedRoom.variants?.[selectedPrimary.id] || selectedRoom.image}
+                                        alt="Room Preview"
+                                        className="w-full aspect-[4/3] object-cover transition-all duration-1000"
+                                    />
 
-                                    {/* Advanced Color Overlays */}
-                                    <div
-                                        className="absolute inset-0 opacity-25 mix-blend-multiply transition-all duration-1000"
-                                        style={{ backgroundColor: selectedPrimary.hex }}
-                                    ></div>
-                                    <div
-                                        className="absolute top-0 left-0 w-full h-full opacity-10 mix-blend-color-burn transition-all duration-1000"
-                                        style={{ backgroundColor: selectedPrimary.hex }}
-                                    ></div>
+                                    {/* Advanced Color Overlays - Only show if using the base image */}
+                                    {!selectedRoom.variants?.[selectedPrimary.id] && (
+                                        <>
+                                            <div
+                                                className="absolute inset-0 opacity-25 mix-blend-multiply transition-all duration-1000"
+                                                style={{ backgroundColor: selectedPrimary.hex }}
+                                            ></div>
+                                            <div
+                                                className="absolute top-0 left-0 w-full h-full opacity-10 mix-blend-color-burn transition-all duration-1000"
+                                                style={{ backgroundColor: selectedPrimary.hex }}
+                                            ></div>
+                                        </>
+                                    )}
 
                                     {/* Room Label Glassmorphism */}
                                     <div className="absolute top-12 left-12 p-8 rounded-[40px] bg-white/70 backdrop-blur-xl shadow-2xl border border-white/50 animate-float translate-y-0">
