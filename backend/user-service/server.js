@@ -9,11 +9,18 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// ROOT ROUTE (ADD THIS)
+// ROOT ROUTE
 app.get("/", (req, res) => {
-    res.send("User Service API is running 🚀");
+  res.send("User Service API is running 🚀");
 });
 
+// HEALTH CHECK
+app.get("/health", (req, res) => {
+  res.json({
+    service: "User Service",
+    status: "OK"
+  });
+});
 // Request logging
 app.use((req, res, next) => {
     console.log(`${new Date().toLocaleString()} - ${req.method} ${req.url}`);
