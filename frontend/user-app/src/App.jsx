@@ -1,4 +1,5 @@
 import React from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './user/components/Navbar/Navbar';
 import Footer from './user/components/Footer/Footer';
 import Chatbot from './user/components/Chatbot';
@@ -10,12 +11,22 @@ import './index.css';
 
 function App() {
     const { user, loading } = useAuth();
+    const location = useLocation();
 
     if (loading) return null;
 
-    // If not logged in, show login page
+    // If not logged in, force navigation to /login
     if (!user) {
-        return <LoginRegister />;
+        // If they are not already on /login, redirect them
+        if (location.pathname !== '/login') {
+            return <Navigate to="/login" replace state={{ from: location }} />;
+        }
+        return (
+            <Routes>
+                <Route path="/login" element={<LoginRegister />} />
+                <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+        );
     }
 
     // If Admin, render Admin UI

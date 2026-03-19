@@ -30,6 +30,9 @@ const AdminSidebar = () => {
                 <NavLink to="/customers" className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'}>
                     <i className="fas fa-users"></i> <span>Users</span>
                 </NavLink>
+                <NavLink to="/cost-estimation" className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'}>
+                    <i className="fas fa-calculator"></i> <span>Cost Estimation</span>
+                </NavLink>
 
                 <div
                     onClick={async () => {

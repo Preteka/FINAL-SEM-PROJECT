@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../../shared/context/AuthContext';
-import { Mail, Calendar, Shield, UserCircle, Camera, Loader2, MapPin } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Mail, Calendar, Shield, UserCircle, Camera, Loader2, MapPin, Plus, Edit2, Trash2, Check, Phone as PhoneIcon, Home } from 'lucide-react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import ProfileLayout from '../../components/Profile/ProfileLayout';
 import { updateProfile } from 'firebase/auth';
 import { doc, updateDoc, collection, query, where, getDocs, limit, orderBy } from 'firebase/firestore';
@@ -15,36 +15,39 @@ const CLOUDINARY_CLOUD_NAME = "dytty2qzo";
 const Profile = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const fileInputRef = useRef(null);
     const [uploading, setUploading] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
-    const [editName, setEditName] = useState(user?.displayName || user?.name || '');
-    const [editPhone, setEditPhone] = useState(user?.phoneNumber || '');
-    const [editAddress, setEditAddress] = useState(user?.address || '');
     const [saving, setSaving] = useState(false);
-    const [recentOrders, setRecentOrders] = useState([]);
-    const [ordersLoading, setOrdersLoading] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
 
-    if (!user) {
-        return (
-            <div style={{
-                height: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexDirection: 'column',
-                gap: '20px'
-            }}>
-                <p>Please log in to view your profile.</p>
-                <button
-                    className="btn btn-primary"
-                    onClick={() => navigate('/login')}
-                >
-                    Go to Login
-                </button>
-            </div>
-        );
-    }
+    const [personalInfo, setPersonalInfo] = useState({
+        firstName: user?.firstName || user?.name?.split(' ')[0] || user?.displayName?.split(' ')[0] || '',
+        lastName: user?.lastName || (user?.name?.split(' ').length > 1 ? user.name.split(' ').slice(1).join(' ') : '') || (user?.displayName?.split(' ').length > 1 ? user.displayName.split(' ').slice(1).join(' ') : '') || '',
+        email: user?.email || '',
+        phone: user?.phone || user?.phoneNumber || '',
+        dob: user?.dob || '',
+        gender: user?.gender || '',
+        photoURL: user?.photoURL || ''
+    });
+
+    const [tempInfo, setTempInfo] = useState({ ...personalInfo });
+
+    useEffect(() => {
+        if (user) {
+            const info = {
+                firstName: user.firstName || user.name?.split(' ')[0] || user.displayName?.split(' ')[0] || '',
+                lastName: user.lastName || (user.name?.split(' ').length > 1 ? user.name.split(' ').slice(1).join(' ') : '') || (user.displayName?.split(' ').length > 1 ? user.displayName.split(' ').slice(1).join(' ') : '') || '',
+                email: user.email || '',
+                phone: user.phone || user.phoneNumber || '',
+                dob: user.dob || '',
+                gender: user.gender || '',
+                photoURL: user.photoURL || ''
+            };
+            setPersonalInfo(info);
+            setTempInfo(info);
+        }
+    }, [user]);
 
     const handleUploadClick = () => {
         fileInputRef.current.click();
@@ -94,22 +97,16 @@ const Profile = () => {
     const handleSave = async () => {
         setSaving(true);
         try {
-            // 1. Update Firebase Auth
-            await updateProfile(auth.currentUser, {
-                displayName: editName
-            });
-
-            // 2. Update Firestore
+            // Update Firestore
             await updateDoc(doc(db, "users", user.uid), {
-                name: editName,
-                phoneNumber: editPhone,
-                address: editAddress,
+                ...tempInfo,
+                name: `${tempInfo.firstName} ${tempInfo.lastName}`.trim(),
                 updatedAt: new Date().toISOString()
             });
 
+            setPersonalInfo({ ...tempInfo });
             setIsEditing(false);
             alert('Profile updated successfully!');
-            window.location.reload();
         } catch (error) {
             console.error('Error updating profile:', error);
             alert('Failed to update profile.');
@@ -118,305 +115,208 @@ const Profile = () => {
         }
     };
 
-    useEffect(() => {
-        const fetchRecentOrders = async () => {
-            if (!user) return;
-            try {
-                const q = query(
-                    collection(db, 'orders'),
-                    where('userId', '==', user.uid)
-                );
-                const querySnapshot = await getDocs(q);
-                const orders = querySnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                    .slice(0, 3);
+    const handleDiscard = () => {
+        setTempInfo({ ...personalInfo });
+        setIsEditing(false);
+    };
 
-                setRecentOrders(orders);
-            } catch (error) {
-                console.error("Error fetching recent orders:", error);
-            } finally {
-                setOrdersLoading(false);
-            }
-        };
-
-        fetchRecentOrders();
-    }, [user]);
-
-    const getStatusStyles = (status) => {
-        switch (status) {
-            case 'pending': return { bg: 'rgba(255, 152, 0, 0.1)', color: '#e65100' };
-            case 'processing': return { bg: 'rgba(33, 150, 243, 0.1)', color: '#1565c0' };
-            case 'shipped': return { bg: 'rgba(156, 39, 176, 0.1)', color: '#7b1fa2' };
-            case 'delivered': return { bg: 'rgba(76, 175, 80, 0.1)', color: '#2e7d32' };
-            default: return { bg: 'var(--color-gray-100)', color: 'var(--color-text-light)' };
-        }
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setTempInfo(prev => ({ ...prev, [name]: value }));
     };
 
     return (
         <ProfileLayout>
             <div className="profile-card-simple">
-                {/* Centered Profile Header */}
-                <div className="profile-header-center">
-                    <div className="profile-avatar-wrapper">
-                        {user.photoURL ? (
-                            <img
-                                src={user.photoURL}
-                                alt="Profile"
-                                className="profile-avatar-main"
-                            />
-                        ) : (
-                            <div className="profile-avatar-main" style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                backgroundColor: 'var(--color-secondary)',
-                                color: 'var(--color-primary)'
-                            }}>
-                                <UserCircle size={100} />
-                            </div>
-                        )}
+                {/* Personal Information Header */}
+                <div className="section-header" style={{ marginBottom: '30px', borderBottom: '1px solid #eee', paddingBottom: '15px' }}>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1C1917', margin: 0 }}>Personal Information</h2>
+                    <p style={{ color: '#666', fontSize: '0.9rem', marginTop: '5px' }}>Manage your profile and personal details</p>
+                </div>
 
-                        <button
-                            className="upload-trigger"
-                            onClick={handleUploadClick}
-                            disabled={uploading}
-                            title="Upload Profile Photo"
-                        >
-                            {uploading ? <Loader2 className="animate-spin" size={20} /> : <Camera size={20} />}
-                        </button>
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleFileChange}
-                            style={{ display: 'none' }}
-                            accept="image/*"
-                        />
-                    </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: '50px' }}>
+                    {/* Left: Profile Image */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div className="profile-avatar-wrapper" style={{ width: '180px', height: '180px' }}>
+                            {personalInfo.photoURL ? (
+                                <img
+                                    src={personalInfo.photoURL}
+                                    alt="Profile"
+                                    className="profile-avatar-main"
+                                    style={{ width: '100%', height: '100%', borderRadius: '20px' }}
+                                />
+                            ) : (
+                                <div className="profile-avatar-main" style={{
+                                    width: '100%', height: '100%', borderRadius: '20px',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    backgroundColor: '#f5f5f5', color: '#5D4037'
+                                }}>
+                                    <UserCircle size={100} />
+                                </div>
+                            )}
 
-                    {isEditing ? (
-                        <div style={{ width: '100%', maxWidth: '400px', margin: '0 auto' }}>
+                            <button
+                                className="upload-trigger"
+                                onClick={handleUploadClick}
+                                disabled={uploading}
+                                style={{ bottom: '10px', right: '10px' }}
+                            >
+                                {uploading ? <Loader2 className="animate-spin" size={20} /> : <Camera size={20} />}
+                            </button>
                             <input
-                                type="text"
-                                value={editName}
-                                onChange={(e) => setEditName(e.target.value)}
-                                style={{
-                                    fontSize: '2.5rem',
-                                    color: 'var(--color-primary)',
-                                    marginBottom: '5px',
-                                    textAlign: 'center',
-                                    width: '100%',
-                                    border: 'none',
-                                    borderBottom: '2px solid var(--color-primary)',
-                                    background: 'transparent',
-                                    outline: 'none',
-                                    fontWeight: 'bold'
-                                }}
-                                placeholder="Edit Name"
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                style={{ display: 'none' }}
+                                accept="image/*"
                             />
                         </div>
-                    ) : (
-                        <h1 style={{
-                            fontSize: '2.5rem',
-                            color: 'var(--color-primary)',
-                            marginBottom: '5px'
-                        }}>
-                            {user.displayName || user.name || 'User'}
-                        </h1>
-                    )}
-                    <p style={{ color: 'var(--color-text-light)', fontSize: '1.1rem' }}>
-                        Premium Member
-                    </p>
-                </div>
-
-                <div className="profile-details-grid">
-                    {/* Detail Cards */}
-                    <DetailCard
-                        icon={<Mail size={22} />}
-                        label="Email Address"
-                        value={user.email}
-                    />
-                    <DetailCard
-                        icon={<Shield size={22} />}
-                        label="Account Role"
-                        value={user.role || 'User'}
-                    />
-                    <DetailCard
-                        icon={<Calendar size={22} />}
-                        label="Member Since"
-                        value={user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', {
-                            month: 'long',
-                            year: 'numeric',
-                            day: 'numeric'
-                        }) : 'N/A'}
-                    />
-                    {isEditing ? (
-                        <>
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '20px',
-                                padding: '20px',
-                                backgroundColor: '#fdf8f6',
-                                borderRadius: '12px',
-                                border: '2px solid var(--color-primary)'
-                            }}>
-                                <div style={{ color: 'var(--color-primary)' }}><UserCircle size={22} /></div>
-                                <div style={{ flex: 1 }}>
-                                    <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-light)' }}>Phone Number</p>
-                                    <input
-                                        type="text"
-                                        value={editPhone}
-                                        onChange={(e) => setEditPhone(e.target.value)}
-                                        style={{
-                                            width: '100%',
-                                            border: 'none',
-                                            background: 'transparent',
-                                            fontSize: '1.05rem',
-                                            color: 'var(--color-text)',
-                                            fontWeight: '600',
-                                            outline: 'none',
-                                            padding: '2px 0'
-                                        }}
-                                        placeholder="Enter Phone Number"
-                                    />
-                                </div>
-                            </div>
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '20px',
-                                padding: '20px',
-                                backgroundColor: '#fdf8f6',
-                                borderRadius: '12px',
-                                border: '2px solid var(--color-primary)'
-                            }}>
-                                <div style={{ color: 'var(--color-primary)' }}><MapPin size={22} /></div>
-                                <div style={{ flex: 1 }}>
-                                    <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-light)' }}>Address</p>
-                                    <input
-                                        type="text"
-                                        value={editAddress}
-                                        onChange={(e) => setEditAddress(e.target.value)}
-                                        style={{
-                                            width: '100%',
-                                            border: 'none',
-                                            background: 'transparent',
-                                            fontSize: '1.05rem',
-                                            color: 'var(--color-text)',
-                                            fontWeight: '600',
-                                            outline: 'none',
-                                            padding: '2px 0'
-                                        }}
-                                        placeholder="Enter Address"
-                                    />
-                                </div>
-                            </div>
-                        </>
-                    ) : (
-                        <>
-                            <DetailCard
-                                icon={<UserCircle size={22} />}
-                                label="Phone Number"
-                                value={user.phoneNumber || 'Not Set'}
-                            />
-                            <DetailCard
-                                icon={<MapPin size={22} />}
-                                label="Address"
-                                value={user.address || 'Not Set'}
-                            />
-                        </>
-                    )}
-                </div>
-
-                {/* Recent Orders Section */}
-                <div className="recent-orders-section">
-                    <div className="section-header">
-                        <div className="title-with-icon">
-                            <ShoppingBag size={22} />
-                            <h2>Recent Orders</h2>
+                        <h3 style={{ marginTop: '15px', fontSize: '1.2rem', fontWeight: '800' }}>
+                            {personalInfo.firstName} {personalInfo.lastName}
+                        </h3>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#10b981', fontSize: '0.85rem', fontWeight: 'bold', marginTop: '5px' }}>
+                            <Shield size={14} fill="#10b981" color="white" /> Verified User
                         </div>
-                        <Link to="/orders" className="view-all-link">
-                            View All <ChevronRight size={16} />
-                        </Link>
                     </div>
 
-                    {ordersLoading ? (
-                        <div className="orders-loader">
-                            <Loader2 className="animate-spin" />
-                            <span>Fetching latest updates...</span>
+                    {/* Right: Personal Details Form */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                            <div className="input-group">
+                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#444' }}>First Name</label>
+                                <input
+                                    type="text"
+                                    name="firstName"
+                                    value={isEditing ? tempInfo.firstName : personalInfo.firstName}
+                                    onChange={handleInputChange}
+                                    disabled={!isEditing}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #ddd', backgroundColor: isEditing ? 'white' : '#f9f9f9' }}
+                                />
+                            </div>
+                            <div className="input-group">
+                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#444' }}>Last Name</label>
+                                <input
+                                    type="text"
+                                    name="lastName"
+                                    value={isEditing ? tempInfo.lastName : personalInfo.lastName}
+                                    onChange={handleInputChange}
+                                    disabled={!isEditing}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #ddd', backgroundColor: isEditing ? 'white' : '#f9f9f9' }}
+                                />
+                            </div>
                         </div>
-                    ) : recentOrders.length > 0 ? (
-                        <div className="recent-orders-list">
-                            {recentOrders.map((order) => {
-                                const statusStyle = getStatusStyles(order.status);
-                                return (
-                                    <div key={order.id} className="recent-order-item" onClick={() => navigate('/orders')}>
-                                        <div className="order-info">
-                                            <span className="order-id">#{order.id.slice(0, 8).toUpperCase()}</span>
-                                            <span className="order-date">
-                                                {new Date(order.createdAt).toLocaleDateString('en-IN', {
-                                                    day: 'numeric',
-                                                    month: 'short'
-                                                })}
-                                            </span>
-                                        </div>
-                                        <div className="order-status-badge" style={{ backgroundColor: statusStyle.bg, color: statusStyle.color }}>
-                                            <Clock size={12} />
-                                            <span>{order.status}</span>
-                                        </div>
-                                        <div className="order-total">
-                                            ₹{order.total?.toLocaleString()}
-                                        </div>
-                                        <ChevronRight size={18} className="arrow-icon" />
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    ) : (
-                        <div className="no-orders-msg">
-                            <p>No recent orders found.</p>
-                            <Link to="/products" className="shop-now-text">Start shopping</Link>
-                        </div>
-                    )}
-                </div>
 
-                {/* Actions */}
-                <div style={{
-                    marginTop: '50px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: '20px'
-                }}>
-                    {isEditing ? (
-                        <>
+                        <div className="input-group">
+                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#444' }}>Email Address</label>
+                            <div style={{ position: 'relative' }}>
+                                <input
+                                    type="email"
+                                    value={personalInfo.email}
+                                    disabled
+                                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #ddd', backgroundColor: '#f9f9f9', paddingRight: '100px' }}
+                                />
+                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#10b981', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                                    ✓ Verified
+                                </span>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                            <div className="input-group">
+                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#444' }}>Date of Birth</label>
+                                <input
+                                    type="date"
+                                    name="dob"
+                                    value={isEditing ? tempInfo.dob : personalInfo.dob}
+                                    onChange={handleInputChange}
+                                    disabled={!isEditing}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #ddd', backgroundColor: isEditing ? 'white' : '#f9f9f9' }}
+                                />
+                            </div>
+                            <div className="input-group">
+                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#444' }}>Gender</label>
+                                <select
+                                    name="gender"
+                                    value={isEditing ? tempInfo.gender : personalInfo.gender}
+                                    onChange={handleInputChange}
+                                    disabled={!isEditing}
+                                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #ddd', backgroundColor: isEditing ? 'white' : '#f9f9f9' }}
+                                >
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="input-group">
+                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#444' }}>Phone Number</label>
+                            <input
+                                type="tel"
+                                name="phone"
+                                value={isEditing ? tempInfo.phone : personalInfo.phone}
+                                onChange={handleInputChange}
+                                disabled={!isEditing}
+                                placeholder="Enter mobile number"
+                                style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #ddd', backgroundColor: isEditing ? 'white' : '#f9f9f9' }}
+                            />
+                        </div>
+
+                        <div className="address-section" style={{
+                            marginTop: '10px',
+                            padding: '20px',
+                            borderRadius: '12px',
+                            backgroundColor: '#fdf8f6',
+                            border: '1px solid #f2e7e3',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between'
+                        }}>
+                            <div>
+                                <h4 style={{ margin: 0, color: '#1C1917', fontWeight: '700' }}>Manage Addresses</h4>
+                                <p style={{ margin: '5px 0 0', fontSize: '0.85rem', color: '#666' }}>Add or edit your delivery addresses</p>
+                            </div>
                             <button
-                                className="btn btn-primary"
-                                style={{ padding: '12px 40px' }}
-                                onClick={handleSave}
-                                disabled={saving}
-                            >
-                                {saving ? <Loader2 className="animate-spin" /> : 'Save Changes'}
-                            </button>
-                            <button
+                                onClick={() => navigate('/profile/addresses')}
                                 className="btn btn-outline"
-                                style={{ padding: '12px 40px' }}
-                                onClick={() => setIsEditing(false)}
-                                disabled={saving}
+                                style={{ padding: '8px 20px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}
                             >
-                                Cancel
+                                <MapPin size={18} /> Manage
                             </button>
-                        </>
-                    ) : (
-                        <button
-                            className="btn btn-primary"
-                            style={{ padding: '12px 40px' }}
-                            onClick={() => setIsEditing(true)}
-                        >
-                            Edit Profile
-                        </button>
-                    )}
+                        </div>
+
+                        <div style={{ marginTop: '20px', display: 'flex', gap: '15px' }}>
+                            {!isEditing ? (
+                                <button
+                                    onClick={() => setIsEditing(true)}
+                                    className="btn btn-primary"
+                                    style={{ padding: '12px 30px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}
+                                >
+                                    <Edit2 size={18} /> Edit Profile
+                                </button>
+                            ) : (
+                                <>
+                                    <button
+                                        onClick={handleSave}
+                                        className="btn btn-primary"
+                                        disabled={saving}
+                                        style={{ padding: '12px 30px', borderRadius: '10px' }}
+                                    >
+                                        {saving ? 'Saving...' : 'Save Changes'}
+                                    </button>
+                                    <button
+                                        onClick={handleDiscard}
+                                        className="btn btn-outline"
+                                        disabled={saving}
+                                        style={{ padding: '12px 30px', borderRadius: '10px' }}
+                                    >
+                                        Discard Changes
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
         </ProfileLayout>

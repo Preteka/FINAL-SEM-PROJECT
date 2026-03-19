@@ -7,6 +7,7 @@ import Products from '../pages/Products/Products';
 import Orders from '../pages/Orders/Orders';
 import Inventory from '../pages/Inventory/Inventory';
 import Customers from '../pages/Customers/Customers';
+import CostEstimation from '../pages/CostEstimation/CostEstimation';
 import { useAuth } from '../../shared/context/AuthContext';
 
 // Protective Wrapper Component
@@ -38,6 +39,7 @@ const AdminRoutes = () => {
                 <Route path="orders" element={<Orders />} />
                 <Route path="inventory" element={<Inventory />} />
                 <Route path="customers" element={<Customers />} />
+                <Route path="cost-estimation" element={<CostEstimation />} />
             </Route>
 
             {/* Fallback */}

@@ -39,10 +39,23 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu on route change
+  // Close mobile menu on route change and handle anchor scrolling
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setActiveDropdown(null);
+
+    if (location.hash) {
+      // Small delay to ensure the DOM is ready (especially if switching pages)
+      setTimeout(() => {
+        const id = location.hash.replace('#', '');
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }, [location]);
 
   // Click outside to close dropdown
@@ -61,7 +74,7 @@ const Header = () => {
     { name: 'Products', path: '#products', hasDropdown: true },
     { name: 'Cost Estimation', path: '/cost-estimation' },
     { name: 'Orders', path: '/orders' },
-    { name: 'Contact', path: '#contact' },
+    { name: 'Contact', path: '/#contact' },
   ];
 
   const megaMenuData = {
@@ -99,23 +112,17 @@ const Header = () => {
       <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '100%' }}>
 
         {/* Logo */}
-        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', zIndex: 1001 }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            backgroundColor: 'var(--color-primary)',
-            borderRadius: 'var(--radius-md)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontWeight: 'bold',
-            fontSize: '1.2rem',
-            backgroundImage: 'linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary-dark) 100%)',
-            boxShadow: 'var(--shadow-sm)'
-          }}>
-            V
-          </div>
+        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px', zIndex: 1001 }}>
+          <img
+            src="\images\logo.png" /* ADD YOUR LOGO IMAGE PATH HERE */
+            alt="Logo"
+            style={{
+              height: '60px',
+              width: 'auto',
+              objectFit: 'contain',
+              display: 'block'
+            }}
+          />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={{
               color: shouldBeScrolled ? 'var(--color-primary)' : 'white',

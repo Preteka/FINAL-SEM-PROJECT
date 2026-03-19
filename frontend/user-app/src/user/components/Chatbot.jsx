@@ -39,15 +39,20 @@ const Chatbot = () => {
             if (response.ok) {
                 setMessages(prev => [...prev, { text: data.reply, sender: 'bot' }]);
             } else {
-                throw new Error(data.error || 'Failed to get response');
+                setMessages(prev => [...prev, {
+                    text: `Error: ${data.error || 'Failed to get response'}. ${data.details || ''}`,
+                    sender: 'bot'
+                }]);
             }
+
         } catch (error) {
             console.error('Chat Error:', error);
             setMessages(prev => [...prev, {
-                text: "I'm having trouble connecting to the server. Please try again later.",
+                text: "I'm having trouble connecting to the server. Please check if the backend is running and API keys are configured.",
                 sender: 'bot'
             }]);
         }
+
     };
 
     const options = [

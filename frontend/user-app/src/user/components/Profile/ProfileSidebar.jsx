@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { User, ShoppingBag, History, Settings, UserCircle } from 'lucide-react';
+import { User, ShoppingBag, History, Settings, UserCircle, MapPin } from 'lucide-react';
 // HMR Force Update - Context paths fixed
 import { useAuth } from '../../../shared/context/AuthContext';
 import '../../pages/Profile/Profile.css';
@@ -10,9 +10,9 @@ const ProfileSidebar = () => {
 
     const menuItems = [
         { icon: <User size={20} />, label: 'My Profile', path: '/profile' },
+        { icon: <MapPin size={20} />, label: 'My Addresses', path: '/profile/addresses' },
         { icon: <ShoppingBag size={20} />, label: 'My Cart', path: '/cart' },
         { icon: <History size={20} />, label: 'Order History', path: '/orders' },
-        { icon: <Settings size={20} />, label: 'Settings', path: '/settings' },
     ];
 
     return (
@@ -41,6 +41,7 @@ const ProfileSidebar = () => {
                     <NavLink
                         key={item.label}
                         to={item.path}
+                        end={item.path === '/profile'}
                         className={({ isActive }) => `profile-nav-item ${isActive ? 'active' : ''}`}
                     >
                         {item.icon}

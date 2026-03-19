@@ -51,116 +51,24 @@ const BrandStory = () => {
                         </div>
                     </div>
 
-                    {/* Video/Image Side */}
-                    <div className="reveal-right" style={{ position: 'relative' }}>
+                    {/* Image Side */}
+                    <div className="reveal-right">
                         <div
                             style={{
-                                position: 'relative',
                                 borderRadius: 'var(--radius-xl)',
                                 overflow: 'hidden',
                                 boxShadow: '20px 20px 0px var(--color-surface)',
-                                cursor: 'pointer'
                             }}
-                            onClick={() => setIsVideoOpen(true)}
-                            className="video-thumbnail"
                         >
                             <img
-                                src="https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=800&q=80"
-                                alt="Factory Tour"
-                                style={{ width: '100%', height: '400px', objectFit: 'cover', transition: 'transform 0.5s ease' }}
+                                src="/images/shop.png"
+                                alt="Vinayaga Shop"
+                                style={{ width: '100%', height: '400px', objectFit: 'cover' }}
                             />
-                            <div style={{
-                                position: 'absolute',
-                                top: '0',
-                                left: '0',
-                                width: '100%',
-                                height: '100%',
-                                background: 'rgba(0,0,0,0.3)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                            }}>
-                                <div className="play-btn-pulse">
-                                    <Play fill="white" size={32} style={{ marginLeft: '4px' }} />
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            {/* Video Modal Overlay */}
-            {isVideoOpen && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: 'rgba(0,0,0,0.9)',
-                    zIndex: 2000,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '40px'
-                }} onClick={() => setIsVideoOpen(false)}>
-                    <button
-                        style={{
-                            position: 'absolute',
-                            top: '30px',
-                            right: '30px',
-                            background: 'none',
-                            border: 'none',
-                            color: 'white',
-                            cursor: 'pointer'
-                        }}
-                        onClick={() => setIsVideoOpen(false)}
-                    >
-                        <X size={40} />
-                    </button>
-
-                    <div style={{ width: '100%', maxWidth: '900px', aspectRatio: '16/9', background: 'black' }} onClick={(e) => e.stopPropagation()}>
-                        <iframe
-                            width="100%"
-                            height="100%"
-                            src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
-                            title="Brand Video"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                        ></iframe>
-                    </div>
-                </div>
-            )}
-
-            <style>{`
-                .video-thumbnail:hover img {
-                    transform: scale(1.05);
-                }
-                .play-btn-pulse {
-                    width: 80px;
-                    height: 80px;
-                    background-color: var(--color-primary);
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: white;
-                    box-shadow: 0 0 0 0 rgba(93, 64, 55, 0.7);
-                    animation: pulse 2s infinite;
-                    transition: transform 0.3s ease;
-                }
-                .video-thumbnail:hover .play-btn-pulse {
-                    transform: scale(1.1);
-                    background-color: white;
-                    color: var(--color-primary);
-                }
-                @keyframes pulse {
-                    0% { box-shadow: 0 0 0 0 rgba(93, 64, 55, 0.7); }
-                    70% { box-shadow: 0 0 0 20px rgba(93, 64, 55, 0); }
-                    100% { box-shadow: 0 0 0 0 rgba(93, 64, 55, 0); }
-                }
-            `}</style>
         </section>
     );
 };

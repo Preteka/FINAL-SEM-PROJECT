@@ -27,7 +27,7 @@ const ProductDetails = () => {
     const [product, setProduct] = useState(null);
     const [mainImage, setMainImage] = useState('');
     const [quantity, setQuantity] = useState(1);
-    const [area, setArea] = useState('');
+    const [selectedColor, setSelectedColor] = useState('');
     const [showNotification, setShowNotification] = useState(false);
 
     useEffect(() => {
@@ -35,7 +35,15 @@ const ProductDetails = () => {
             const data = await fetchProductById(productId);
             if (data) {
                 setProduct(data);
-                setMainImage(data.images && data.images.length > 0 ? data.images[0] : data.image);
+                const firstColor = data.colors && data.colors.length > 0 ? data.colors[0] : null;
+                const initialImage = (firstColor && typeof firstColor === 'object' && firstColor.image)
+                    ? firstColor.image
+                    : (data.images && data.images.length > 0 ? data.images[0] : data.image);
+                
+                setMainImage(initialImage);
+                if (firstColor) {
+                    setSelectedColor(firstColor);
+                }
             }
         };
 
@@ -43,13 +51,15 @@ const ProductDetails = () => {
     }, [productId, fetchProductById]);
 
     const handleAddToCart = () => {
-        addToCart(product, quantity);
+        const colorName = typeof selectedColor === 'object' ? selectedColor.name : selectedColor;
+        addToCart({ ...product, selectedColor: colorName }, quantity);
         setShowNotification(true);
         setTimeout(() => setShowNotification(false), 3000);
     };
 
     const handleBuyNow = () => {
-        addToCart(product, quantity);
+        const colorName = typeof selectedColor === 'object' ? selectedColor.name : selectedColor;
+        addToCart({ ...product, selectedColor: colorName }, quantity);
         navigate('/cart');
     };
 
@@ -186,6 +196,54 @@ const ProductDetails = () => {
                                     <span className="spec-value">{product.usage || 'Interiors'}</span>
                                 </div>
                             </div>
+
+                            {/* Additional Specifications/Features */}
+                            {product.features && product.features.length > 0 && (
+                                <div className="product-features-premium">
+                                    <h3 className="features-title">Specifications</h3>
+                                    <ul className="features-list">
+                                        {product.features.map((feature, index) => (
+                                            <li key={index} className="feature-item">
+                                                <Check size={16} className="feature-icon" />
+                                                <span>{feature}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                            {/* Color Selection */}
+                            {product.colors && product.colors.length > 0 && (
+                                <div className="color-selection">
+                                    <h3 className="features-title">Select Color</h3>
+                                    <div className="color-swatch-container">
+                                        {product.colors.map((colorObj, index) => {
+                                            const colorName = typeof colorObj === 'string' ? colorObj : colorObj.name;
+                                            const colorImg = typeof colorObj === 'string' ? '' : colorObj.image;
+                                            const isSelected = (typeof selectedColor === 'string' ? selectedColor : selectedColor.name) === colorName;
+
+                                            return (
+                                                <div
+                                                    key={index}
+                                                    className={`color-swatch ${isSelected ? 'active' : ''}`}
+                                                    onClick={() => {
+                                                        setSelectedColor(colorObj);
+                                                        if (colorImg) setMainImage(colorImg);
+                                                    }}
+                                                    title={colorName}
+                                                >
+                                                    <div
+                                                        className="color-circle"
+                                                        style={{ backgroundColor: colorName.toLowerCase() }}
+                                                    >
+                                                        {isSelected && <Check size={14} color={['white', 'lightgrey', 'yellow'].includes(colorName.toLowerCase()) ? 'black' : 'white'} />}
+                                                    </div>
+                                                    <span className="color-name">{colorName}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Controls */}
@@ -195,15 +253,6 @@ const ProductDetails = () => {
                                     <button onClick={() => setQuantity(Math.max(1, quantity - 1))}>−</button>
                                     <span>{quantity}</span>
                                     <button onClick={() => setQuantity(quantity + 1)}>+</button>
-                                </div>
-                                <div className="area-input-box">
-                                    <input
-                                        type="number"
-                                        value={area}
-                                        onChange={(e) => setArea(e.target.value)}
-                                        placeholder="Estimate Area"
-                                    />
-                                    <span className="area-unit">SQ.FT</span>
                                 </div>
                             </div>
 

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "user_1773075873347",
+    "firstName": "pretekaa",
+    "lastName": "",
+    "name": "pretekaa",
+    "email": "pretekaa@gmail.com",
+    "role": "user",
+    "createdAt": "2026-03-09T17:04:33.347Z"
+  },
+  {
+    "id": "user_1773076563747",
+    "firstName": "Test",
+    "lastName": "Automation",
+    "name": "Test Automation",
+    "email": "test_no_otp_1773076563634@example.com",
+    "role": "user",
+    "createdAt": "2026-03-09T17:16:03.747Z"
+  },
+  {
+    "id": "user_1773111253754",
+    "firstName": "Kumar",
+    "lastName": "",
+    "name": "Kumar",
+    "email": "pretekaat.24mca@kongu.edu",
+    "role": "user",
+    "createdAt": "2026-03-10T02:54:13.754Z"
+  }
+]

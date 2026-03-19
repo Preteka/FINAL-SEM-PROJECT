@@ -23,6 +23,7 @@ const AdminProducts = () => {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [imageFile, setImageFile] = useState(null);
     const [imageFile2, setImageFile2] = useState(null);
+    const [colorFiles, setColorFiles] = useState({}); // Mapping color name to File object
 
     const [newProduct, setNewProduct] = useState({
         name: '',
@@ -37,7 +38,8 @@ const AdminProducts = () => {
         size: '',
         usage: '',
         image: '',
-        images: []
+        images: [],
+        colors: []
     });
 
     useEffect(() => {
@@ -129,10 +131,26 @@ const AdminProducts = () => {
                 return;
             }
 
+            // 1.5 Upload Color Images
+            const updatedColors = [...newProduct.colors];
+            for (let i = 0; i < updatedColors.length; i++) {
+                const colorName = updatedColors[i].name || updatedColors[i]; // Handle transition from string to object
+                const name = typeof updatedColors[i] === 'string' ? updatedColors[i] : updatedColors[i].name;
+                
+                if (colorFiles[name]) {
+                    console.log(`Uploading image for color: ${name}`);
+                    const colorImgUrl = await uploadToCloudinary(colorFiles[name]);
+                    updatedColors[i] = { name: name, image: colorImgUrl };
+                } else if (typeof updatedColors[i] === 'string') {
+                    updatedColors[i] = { name: name, image: '' };
+                }
+            }
+
             // 2. Save or Update Product Data to Firestore
             const productToSave = {
                 ...newProduct,
-                image: images[0] || '', // Keep for backward compatibility
+                colors: updatedColors,
+                image: images[0] || (updatedColors.length > 0 ? updatedColors[0].image : ''), // Use first color image as fallback
                 images: images,
                 updatedAt: new Date().toISOString()
             };
@@ -165,6 +183,7 @@ const AdminProducts = () => {
             });
             setImageFile(null);
             setImageFile2(null);
+            setColorFiles({});
             setUploadProgress(0);
             // fetchProducts(); // Removed redundant call - onSnapshot handles updates
 
@@ -203,7 +222,8 @@ const AdminProducts = () => {
             size: product.size || '',
             usage: product.usage || '',
             image: product.image || '',
-            images: product.images || [product.image].filter(Boolean)
+            images: product.images || [product.image].filter(Boolean),
+            colors: product.colors || []
         });
         setEditId(product.id);
         setIsEditing(true);
@@ -224,10 +244,12 @@ const AdminProducts = () => {
             stockCount: '',
             grade: '',
             size: '',
-            usage: ''
+            usage: '',
+            colors: []
         });
         setImageFile(null);
         setImageFile2(null);
+        setColorFiles({});
         setShowAddModal(true);
     };
 
@@ -502,6 +524,115 @@ const AdminProducts = () => {
                                 ></textarea>
                             </div>
                             <div className="form-group full-width">
+                                <label>Colors (Available Options)</label>
+                                <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', flexWrap: 'wrap' }}>
+                                    {['Blue', 'White', 'Green', 'Brown', 'Red', 'Black', 'Grey', 'Yellow'].map(color => (
+                                        <button
+                                            key={color}
+                                            type="button"
+                                            onClick={() => {
+                                                if (!newProduct.colors.includes(color)) {
+                                                    setNewProduct({ ...newProduct, colors: [...newProduct.colors, color] });
+                                                }
+                                            }}
+                                            style={{
+                                                padding: '5px 12px',
+                                                borderRadius: '20px',
+                                                border: '1px solid #ddd',
+                                                background: newProduct.colors.includes(color) ? '#5d4037' : 'white',
+                                                color: newProduct.colors.includes(color) ? 'white' : '#5d4037',
+                                                cursor: 'pointer',
+                                                fontSize: '0.8rem',
+                                                transition: 'all 0.2s'
+                                            }}
+                                        >
+                                            {color}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                    <input
+                                        type="text"
+                                        placeholder="Add custom color..."
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                const val = e.target.value.trim();
+                                                if (val && !newProduct.colors.includes(val)) {
+                                                    setNewProduct({ ...newProduct, colors: [...newProduct.colors, val] });
+                                                    e.target.value = '';
+                                                }
+                                            }
+                                        }}
+                                        style={{ flex: 1 }}
+                                        disabled={uploading}
+                                    />
+                                </div>
+                                <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap' }}>
+                                    {newProduct.colors.map((colorObj, idx) => {
+                                        const colorName = typeof colorObj === 'string' ? colorObj : colorObj.name;
+                                        const colorImg = typeof colorObj === 'string' ? '' : colorObj.image;
+                                        
+                                        return (
+                                            <div
+                                                key={idx}
+                                                style={{
+                                                    padding: '10px',
+                                                    background: '#f8fafc',
+                                                    borderRadius: '12px',
+                                                    border: '1px solid #e2e8f0',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    gap: '8px',
+                                                    minWidth: '150px'
+                                                }}
+                                            >
+                                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <span
+                                                            style={{
+                                                                width: '14px',
+                                                                height: '14px',
+                                                                borderRadius: '50%',
+                                                                background: colorName.toLowerCase(),
+                                                                border: '1px solid #ddd'
+                                                            }}
+                                                        ></span>
+                                                        <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>{colorName}</span>
+                                                    </div>
+                                                    <i
+                                                        className="fas fa-times"
+                                                        style={{ cursor: 'pointer', color: '#94a3b8' }}
+                                                        onClick={() => setNewProduct({ ...newProduct, colors: newProduct.colors.filter((_, i) => i !== idx) })}
+                                                    ></i>
+                                                </div>
+                                                
+                                                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                                                    {colorImg || colorFiles[colorName] ? (
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                            <i className="fas fa-image" style={{ color: '#10b981' }}></i>
+                                                            <span>{colorFiles[colorName] ? 'New Image Selected' : 'Image Uploaded'}</span>
+                                                        </div>
+                                                    ) : 'No image assigned'}
+                                                </div>
+                                                
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files[0];
+                                                        if (file) {
+                                                            setColorFiles({ ...colorFiles, [colorName]: file });
+                                                        }
+                                                    }}
+                                                    style={{ fontSize: '0.7rem' }}
+                                                />
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                            <div className="form-group full-width">
                                 <label>Description</label>
                                 <textarea rows="3" value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} disabled={uploading}></textarea>
                             </div>
@@ -570,6 +701,33 @@ const AdminProducts = () => {
                                     <div className="info-item">
                                         <span className="label">Stock</span>
                                         <span className="value">{selectedProduct.stockCount || '0'}</span>
+                                    </div>
+                                    <div className="info-item">
+                                        <span className="label">Colors</span>
+                                        <div style={{ display: 'flex', gap: '10px', marginTop: '8px', flexWrap: 'wrap' }}>
+                                            {selectedProduct.colors && selectedProduct.colors.length > 0 ? (
+                                                selectedProduct.colors.map((c, i) => (
+                                                    <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                                                        <div
+                                                            title={typeof c === 'string' ? c : c.name}
+                                                            style={{
+                                                                width: '24px',
+                                                                height: '24px',
+                                                                borderRadius: '50%',
+                                                                background: (typeof c === 'string' ? c : c.name).toLowerCase(),
+                                                                border: '2px solid #fff',
+                                                                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                                            }}
+                                                        ></div>
+                                                        {typeof c !== 'string' && c.image && (
+                                                            <img src={c.image} style={{ width: '30px', height: '30px', objectFit: 'cover', borderRadius: '4px' }} alt="" />
+                                                        )}
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <span className="value">None</span>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="info-item">
                                         <span className="label">Product ID (Firestore)</span>

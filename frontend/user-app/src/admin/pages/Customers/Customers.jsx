@@ -233,30 +233,41 @@ const Customers = () => {
                                 </div>
                             </div>
 
-                            <div className="info-grid" style={{ gridTemplateColumns: '1fr' }}>
-                                <div className="info-item" style={{ marginBottom: '1rem' }}>
-                                    <span className="label">Email Address</span>
-                                    <span className="value">{selectedUser.email || 'N/A'}</span>
-                                </div>
-                                <div className="info-item" style={{ marginBottom: '1rem' }}>
-                                    <span className="label">Phone Number</span>
-                                    <span className="value">{selectedUser.phone || 'Not Provided'}</span>
-                                </div>
-                                <div className="info-item" style={{ marginBottom: '1rem' }}>
-                                    <span className="label">Address</span>
-                                    <span className="value">
-                                        {selectedUser.address ? (
-                                            <>
-                                                {selectedUser.address.street && <div>{selectedUser.address.street}</div>}
-                                                {selectedUser.address.city && <div>{selectedUser.address.city}, {selectedUser.address.zip || ''}</div>}
-                                                {selectedUser.address.state && <div>{selectedUser.address.state}</div>}
-                                            </>
-                                        ) : 'No address saved'}
-                                    </span>
+                            <div className="info-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                                <div className="info-item">
+                                    <span className="label" style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>Email Address</span>
+                                    <span className="value" style={{ fontSize: '0.95rem', color: '#1e293b', fontWeight: '500' }}>{selectedUser.email || 'N/A'}</span>
                                 </div>
                                 <div className="info-item">
-                                    <span className="label">User ID (Firestore)</span>
-                                    <span className="value" style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{selectedUser.id}</span>
+                                    <span className="label" style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>Phone Number</span>
+                                    <span className="value" style={{ fontSize: '0.95rem', color: '#1e293b', fontWeight: '500' }}>{selectedUser.phone || 'Not Provided'}</span>
+                                </div>
+                                <div className="info-item">
+                                    <span className="label" style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>Date of Birth</span>
+                                    <span className="value" style={{ fontSize: '0.95rem', color: '#1e293b', fontWeight: '500' }}>{selectedUser.dob || 'Not Provided'}</span>
+                                </div>
+                                <div className="info-item">
+                                    <span className="label" style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>Gender</span>
+                                    <span className="value" style={{ fontSize: '0.95rem', color: '#1e293b', fontWeight: '500' }}>{selectedUser.gender || 'Not Provided'}</span>
+                                </div>
+                                <div className="info-item" style={{ gridColumn: '1 / span 2' }}>
+                                    <span className="label" style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>Last Saved Address</span>
+                                    <div className="value" style={{ 
+                                        fontSize: '0.95rem', color: '#1e293b', fontWeight: '500',
+                                        backgroundColor: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0'
+                                    }}>
+                                        {selectedUser.address ? (
+                                            <>
+                                                <div style={{ fontWeight: '600', marginBottom: '2px' }}>{selectedUser.address.street}</div>
+                                                {selectedUser.address.area && <div>{selectedUser.address.area}</div>}
+                                                <div>{selectedUser.address.city}, {selectedUser.address.state} - {selectedUser.address.zip}</div>
+                                            </>
+                                        ) : 'No address saved yet'}
+                                    </div>
+                                </div>
+                                <div className="info-item" style={{ gridColumn: '1 / span 2', marginTop: '1rem', borderTop: '1px solid #eee', paddingTop: '1rem' }}>
+                                    <span className="label" style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8', fontWeight: '500', marginBottom: '4px' }}>USER ID (FIRESTORE)</span>
+                                    <span className="value" style={{ fontSize: '0.75rem', color: '#94a3b8', fontFamily: 'monospace' }}>{selectedUser.id}</span>
                                 </div>
                             </div>
                         </div>

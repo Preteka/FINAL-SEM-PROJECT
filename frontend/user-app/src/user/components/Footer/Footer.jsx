@@ -27,7 +27,7 @@ const Footer = () => {
     ];
 
     return (
-        <footer style={{
+        <footer id="contact" style={{
             backgroundColor: 'var(--color-dark-bg)',
             color: 'white',
             position: 'relative',
