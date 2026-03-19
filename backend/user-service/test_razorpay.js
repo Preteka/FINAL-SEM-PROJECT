@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = "http://localhost:5001";
 
 async function testRazorpay() {
     console.log("Testing Razorpay Order Creation...");

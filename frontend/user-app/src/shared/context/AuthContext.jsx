@@ -9,7 +9,7 @@ import {
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../services/firebase';
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "http://localhost:5001/api";
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);

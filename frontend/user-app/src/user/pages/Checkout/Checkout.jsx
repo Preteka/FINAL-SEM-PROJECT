@@ -8,7 +8,7 @@ import { collection, addDoc, doc, updateDoc, arrayUnion, getDocs, query, orderBy
 import { CheckCircle, Download, ShoppingBag, Printer, FileText, MapPin, Phone, Mail, Calendar, Plus } from 'lucide-react';
 
 const RAZORPAY_KEY_ID = "rzp_test_SQnD6CcOY2NTOs"; 
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = "http://localhost:5001";
 
 
 const Checkout = () => {
@@ -174,6 +174,12 @@ const Checkout = () => {
 
                 const rzpOrder = await response.json();
 
+                if (!response.ok || !rzpOrder.id) {
+                    alert("Failed to initiate payment. Server error: " + (rzpOrder.message || "Unknown error"));
+                    setLoading(false);
+                    return;
+                }
+
                 const options = {
                     key: RAZORPAY_KEY_ID,
                     amount: rzpOrder.amount,
@@ -220,7 +226,7 @@ const Checkout = () => {
 
                         } catch (err) {
                             console.error("Verification error:", err);
-                            alert("Something went wrong during payment verification.");
+                            alert("Something went wrong during payment verification: " + err.message);
                             setLoading(false);
                         }
                     },

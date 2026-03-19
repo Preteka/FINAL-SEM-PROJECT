@@ -4,7 +4,7 @@
 async function testChat() {
     try {
         console.log("Testing chatbot with a general question...");
-        const response = await fetch('http://localhost:5000/api/chat', {
+        const response = await fetch('http://localhost:5001/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: "What are some good color ideas for a white kitchen?" })

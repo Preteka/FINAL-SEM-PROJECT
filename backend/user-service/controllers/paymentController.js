@@ -61,13 +61,6 @@ export const verifyPayment = async (req, res) => {
         console.log("[RAZORPAY] Payment verified successfully for order:", razorpay_order_id);
         return res.status(200).json({ message: "Payment verified successfully" });
     } else {
-        // DEV MODE BYPASS
-        if (key_secret === 'your_razorpay_key_secret_here') {
-            console.warn("[RAZORPAY] DEV MODE: Bypassing signature verification because placeholder secret is detected.");
-            console.warn("               In production, this MUST be fixed (replace secret in .env).");
-            return res.status(200).json({ message: "Payment verified successfully (DEV MODE BYPASS)" });
-        }
-
         console.error("[RAZORPAY] Signature Mismatch!");
         console.error("  - Expected (calculated):", expectedSign.substring(0, 10) + "...");
         console.error("  - Received (from RZP):", razorpay_signature.substring(0, 10) + "...");
