@@ -9,7 +9,7 @@ import {
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../services/firebase';
 
-const API_BASE_URL = "https://final-sem-project-2.onrender.com";
+const API_BASE_URL = "https://final-sem-project-2.onrender.com/api";
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
