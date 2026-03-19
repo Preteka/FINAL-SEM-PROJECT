@@ -28,6 +28,7 @@ const ProductDetails = () => {
     const [mainImage, setMainImage] = useState('');
     const [quantity, setQuantity] = useState(1);
     const [selectedColor, setSelectedColor] = useState('');
+
     const [showNotification, setShowNotification] = useState(false);
 
     useEffect(() => {
@@ -244,6 +245,7 @@ const ProductDetails = () => {
                                     </div>
                                 </div>
                             )}
+
                         </div>
 
                         {/* Controls */}
@@ -278,12 +280,12 @@ const ProductDetails = () => {
 
             </div>
 
-            <style>{`
+            <style dangerouslySetInnerHTML={{ __html: `
                 @keyframes slideInRight {
                     from { opacity: 0; transform: translateX(50px); }
                     to { opacity: 1; transform: translateX(0); }
                 }
-            `}</style>
+            ` }} />
         </div>
     );
 };

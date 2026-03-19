@@ -5,10 +5,11 @@ import { useCart } from '../../../shared/context/CartContext';
 import { useAuth } from '../../../shared/context/AuthContext';
 import { db } from '../../../shared/services/firebase';
 import { collection, addDoc, doc, updateDoc, arrayUnion, getDocs, query, orderBy } from 'firebase/firestore';
-import { CheckCircle, Download, ShoppingBag, Printer, FileText, MapPin, Phone, Mail, Calendar, Plus, ChevronRight, Check, AlertCircle } from 'lucide-react';
+import { CheckCircle, Download, ShoppingBag, Printer, FileText, MapPin, Phone, Mail, Calendar, Plus } from 'lucide-react';
 
 const RAZORPAY_KEY_ID = "rzp_test_SQnD6CcOY2NTOs"; 
 const BACKEND_URL = "http://localhost:5000";
+
 
 const Checkout = () => {
     const { cart, getCartTotal, clearCart } = useCart();
@@ -134,6 +135,7 @@ const Checkout = () => {
             const shippingStr = `${finalAddress.houseStreet}, ${finalAddress.areaLandmark ? finalAddress.areaLandmark + ', ' : ''}${finalAddress.city}, ${finalAddress.state} - ${finalAddress.pincode}`;
             
             const baseOrder = {
+
                 userId: user?.uid || 'guest',
                 customerName: finalAddress.name,
                 customerEmail: formData.email,
@@ -215,6 +217,7 @@ const Checkout = () => {
                                 alert("Payment verification failed: " + verifyData.message);
                                 setLoading(false);
                             }
+
                         } catch (err) {
                             console.error("Verification error:", err);
                             alert("Something went wrong during payment verification.");
@@ -257,6 +260,7 @@ const Checkout = () => {
                     setTimeout(() => setShowInvoice(true), 2000);
                 }, 1500);
             }
+
 
         } catch (error) {
             console.error("Error placing order:", error);
@@ -375,12 +379,12 @@ const Checkout = () => {
                     <h2 style={{ marginTop: '20px', color: '#1C1917' }}>Order Placed Successfully!</h2>
                     <p style={{ color: '#666' }}>Generating your invoice...</p>
 
-                    <style jsx>{`
+                    <style dangerouslySetInnerHTML={{ __html: `
                         @keyframes scaleUp {
                             from { transform: scale(0); opacity: 0; }
                             to { transform: scale(1); opacity: 1; }
                         }
-                    `}</style>
+                    ` }} />
                 </div>
             </ProfileLayout>
         );
@@ -532,12 +536,12 @@ const Checkout = () => {
                     </button>
                 </div>
 
-                <style jsx>{`
+                <style dangerouslySetInnerHTML={{ __html: `
                     @keyframes fadeInUp {
                         from { opacity: 0; transform: translateY(40px); }
                         to { opacity: 1; transform: translateY(0); }
                     }
-                `}</style>
+                ` }} />
             </ProfileLayout>
         );
     }
@@ -825,6 +829,7 @@ const Checkout = () => {
                                 transition: 'all 0.3s'
                             }}
                             disabled={loading || (!selectedAddress && !isAddingNew)}
+
                         >
                             {loading ? 'Processing...' : `Place Order - ₹${total.toLocaleString()}`}
                         </button>
@@ -932,7 +937,7 @@ const Checkout = () => {
                 </div>
             )}
 
-            <style jsx>{`
+            <style dangerouslySetInnerHTML={{ __html: `
                 @keyframes spin {
                     to { transform: rotate(360deg); }
                 }
@@ -962,7 +967,7 @@ const Checkout = () => {
                 .modal-header h3 { margin: 0; font-size: 1.2rem; }
                 .modal-body { padding: 30px; overflow-y: auto; }
                 .modal-footer { padding: 15px 30px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; }
-            `}</style>
+            ` }} />
         </ProfileLayout>
     );
 };

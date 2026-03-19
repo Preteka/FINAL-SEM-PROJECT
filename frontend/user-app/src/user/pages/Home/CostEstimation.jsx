@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import './CostEstimation.css';
 
+
 const EstimationAnimation = ({ field, formData }) => {
     if (!field) return null;
 
@@ -166,6 +167,7 @@ const EstimationAnimation = ({ field, formData }) => {
             <div className="guide-content">
                 {animations[field]}
             </div>
+
         </div>
     );
 };

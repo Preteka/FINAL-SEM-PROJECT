@@ -188,7 +188,7 @@ const ConvenienceSection = () => {
                 </div>
             </div>
 
-            <style jsx>{`
+            <style>{`
                 @keyframes float-bubble {
                     0%, 100% { transform: translateY(0) rotate(0deg); }
                     50% { transform: translateY(-40px) rotate(15deg); }

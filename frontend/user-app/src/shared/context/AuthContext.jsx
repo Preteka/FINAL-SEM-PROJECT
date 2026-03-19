@@ -9,6 +9,7 @@ import {
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../services/firebase';
 
+const API_BASE_URL = "http://localhost:5000/api";
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
@@ -41,7 +42,7 @@ export const AuthProvider = ({ children }) => {
             });
 
             // 4. Record user in local backend database (users.json)
-            await fetch('http://localhost:5000/api/auth/register', {
+            await fetch(`${API_BASE_URL}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, name, password })
@@ -98,7 +99,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const sendOTP = async (email) => {
-        const response = await fetch('http://localhost:5000/api/auth/send-otp', {
+        const response = await fetch(`${API_BASE_URL}/auth/send-otp`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email })
@@ -109,7 +110,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const registerUser = async (email, name) => {
-        const response = await fetch('http://localhost:5000/api/auth/register', {
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, name })
@@ -120,7 +121,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const verifyOTP = async (email, otp) => {
-        const response = await fetch('http://localhost:5000/api/auth/verify-otp', {
+        const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, otp })

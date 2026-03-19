@@ -64,6 +64,7 @@ const BrandStory = () => {
                                 src="/images/shop.png"
                                 alt="Vinayaga Shop"
                                 style={{ width: '100%', height: '400px', objectFit: 'cover' }}
+
                             />
                         </div>
                     </div>
