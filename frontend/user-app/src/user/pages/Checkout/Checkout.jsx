@@ -8,7 +8,7 @@ import { collection, addDoc, doc, updateDoc, arrayUnion, getDocs, query, orderBy
 import { CheckCircle, Download, ShoppingBag, Printer, FileText, MapPin, Phone, Mail, Calendar, Plus } from 'lucide-react';
 
 const RAZORPAY_KEY_ID = "rzp_test_SQnD6CcOY2NTOs"; 
-const BACKEND_URL = "http://localhost:5001";
+const BACKEND_URL = "https://final-sem-project-2.onrender.com/";
 
 
 const Checkout = () => {
