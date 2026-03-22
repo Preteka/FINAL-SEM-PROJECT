@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const BACKEND_URL = "http://localhost:5001";
+const BACKEND_URL = "https://final-sem-project-2.onrender.com/";
 
 async function testRazorpay() {
     console.log("Testing Razorpay Order Creation...");
